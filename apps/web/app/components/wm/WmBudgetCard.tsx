@@ -1,5 +1,5 @@
-// Adapted from Watermelon UI "budget-card" (MIT): animated total +
-// staggered stacked bar + per-owner rows. No dropdowns, no mock data.
+
+
 "use client";
 import { motion } from "motion/react";
 

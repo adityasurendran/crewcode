@@ -1,10 +1,10 @@
 const BUILD_API = (process.env.NEXT_PUBLIC_API ?? "http://localhost:4100").replace(/\/$/, "");
 let overridden = false;
 
-// Resolved once per page load. Order: ?api= override (captured into storage),
-// saved override, same-origin /api when the page itself came from elsewhere
-// (tunnel URL or hosted), build-time env otherwise. Guests on the tunnel URL
-// therefore reach the host API with zero configuration.
+
+
+
+
 function resolveApi(): string {
   if (typeof window !== "undefined") {
     try {
@@ -21,7 +21,7 @@ function resolveApi(): string {
       }
       const host = window.location.hostname;
       if (host !== "localhost" && host !== "127.0.0.1") return "/api";
-      // Served by our own server (any port except the Next dev server) → same-origin API.
+      
       const port = window.location.port;
       if (port && port !== "3100") return "/api";
     } catch {}

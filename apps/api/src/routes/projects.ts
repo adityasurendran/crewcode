@@ -29,8 +29,8 @@ projectsRouter.post("/", async (req, res) => {
     if (!tpl) return res.status(400).json({ error: `unknown template ${template_slug}` });
     repo = tpl.repo_url;
   }
-  // Non-technical users don't pick frameworks — everyone starts from one
-  // internal starter. The template concept is no longer surfaced.
+  
+  
   if (!repo) repo = "templates/next-supabase";
 
   const rows = await query(`insert into projects (org_id, name, repo_url) values ($1,$2,$3) returning *`, [
@@ -39,7 +39,7 @@ projectsRouter.post("/", async (req, res) => {
     repo,
   ]);
   let created = rows[0];
-  // Give the project its own folder immediately, seeded from the starter.
+  
   try {
     await ensureProjectRepo(created.id, created.repo_url);
     created = (await query(`select * from projects where id=$1`, [created.id]))[0] ?? created;
@@ -53,14 +53,14 @@ projectsRouter.get("/:id/graph", async (req, res) => {
   res.json(graph);
 });
 
-// DELETE /projects/:id — remove the project and its data (threads, notes,
-// tasks, events, artifacts, connections, shares, worktrees/branches).
+
+
 projectsRouter.delete("/:id", async (req, res) => {
   const id = String(req.params.id);
   const rows = await query<any>(`select * from projects where id=$1`, [id]);
   if (!rows.length) return res.status(404).json({ error: "project not found" });
 
-  // Best-effort git cleanup (worktrees + project branches).
+  
   try {
     const { resolveRepoRoot } = await import("../lib/sandbox.js");
     const { execSync } = await import("node:child_process");
@@ -102,7 +102,7 @@ projectsRouter.delete("/:id", async (req, res) => {
   await query(`delete from project_api_keys where project_id=$1`, [id]).catch(() => {});
   await query(`delete from cost_mapping where project_id=$1`, [id]).catch(() => {});
   await query(`delete from projects where id=$1`, [id]);
-  // Remove the project's managed working copy (never an external checkout).
+  
   try {
     const { existsSync, rmSync } = await import("node:fs");
     const local = resolve(process.cwd(), ".crew", "projects", String(id).replace(/[^a-zA-Z0-9-]/g, ""));

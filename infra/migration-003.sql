@@ -1,4 +1,4 @@
--- Migration 003: users, memberships, project api keys
+
 create table if not exists users (
   id text primary key,
   email text unique not null,

@@ -1,6 +1,6 @@
--- Migration 007: multi-tenant RLS + templates
--- Enable RLS on org-scoped tables; policy: members can read own org rows.
--- Phase 0: app sets app.current_org_id per request. Phase 1: JWT claims.
+
+
+
 
 alter table projects enable row level security;
 alter table tasks enable row level security;

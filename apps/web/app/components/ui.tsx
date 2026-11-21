@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 
-/* ---------- helpers ---------- */
+
 export function cx(...parts: (string | false | null | undefined)[]) {
   return parts.filter(Boolean).join(" ");
 }
@@ -25,7 +25,7 @@ function flatTone(seed: string) {
   return palette[h % palette.length];
 }
 
-/* ---------- Button ---------- */
+
 type BtnVariant = "default" | "primary" | "success" | "danger" | "ghost";
 type BtnProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: BtnVariant;
@@ -46,7 +46,7 @@ export function Button({ variant = "default", size = "md", loading, children, cl
   );
 }
 
-/* ---------- Badge / Chip ---------- */
+
 export function StatusBadge({ status }: { status: string }) {
   const s = statusStyle(status);
   return (
@@ -74,7 +74,7 @@ export function Chip({ children, icon }: { children: React.ReactNode; icon?: Rea
   );
 }
 
-/* ---------- Avatar ---------- */
+
 export function Avatar({ name, size = 22 }: { name: string; size?: number }) {
   const initial = (name || "?").replace(/[^a-zA-Z0-9]/g, "").slice(0, 1).toUpperCase() || "?";
   return (
@@ -84,7 +84,7 @@ export function Avatar({ name, size = 22 }: { name: string; size?: number }) {
   );
 }
 
-/* ---------- Card ---------- */
+
 export function Card({ title, action, children, className, bodyClass, hover }: { title?: React.ReactNode; action?: React.ReactNode; children: React.ReactNode; className?: string; bodyClass?: string; hover?: boolean }) {
   return (
     <div className={cx("card", hover && "card-hover", className)}>
@@ -108,7 +108,7 @@ export function Stat({ label, value }: { label: string; value: React.ReactNode }
   );
 }
 
-/* ---------- Empty ---------- */
+
 export function Empty({ title, hint, action }: { title: string; hint?: string; action?: React.ReactNode }) {
   return (
     <div className="empty">
@@ -119,7 +119,7 @@ export function Empty({ title, hint, action }: { title: string; hint?: string; a
   );
 }
 
-/* ---------- Skeleton ---------- */
+
 export function Skeleton({ w = "100%", h = 14, r = 6 }: { w?: string | number; h?: number; r?: number }) {
   return <div className="skeleton" style={{ width: w, height: h, borderRadius: r }} />;
 }
@@ -134,7 +134,7 @@ export function SkeletonRows({ rows = 3 }: { rows?: number }) {
   );
 }
 
-/* ---------- Field / inputs ---------- */
+
 export function Field({ label, hint, children }: { label?: string; hint?: string; children: React.ReactNode }) {
   return (
     <div className="field">
@@ -145,7 +145,7 @@ export function Field({ label, hint, children }: { label?: string; hint?: string
   );
 }
 
-/* ---------- Modal ---------- */
+
 export function Modal({ title, children, onClose }: { title: string; children: React.ReactNode; onClose: () => void }) {
   return (
     <div className="overlay" onClick={onClose}>
@@ -157,7 +157,7 @@ export function Modal({ title, children, onClose }: { title: string; children: R
   );
 }
 
-/* ---------- Stream row ---------- */
+
 export function timeAgo(iso: string): string {
   const d = new Date(iso).getTime();
   const s = Math.floor((Date.now() - d) / 1000);
@@ -172,7 +172,7 @@ export function money(n: number | undefined | null): string {
   return `$${(Number(n) || 0).toFixed(4)}`;
 }
 
-/* ---------- Good Boy bits ---------- */
+
 export function Sticker({ tone = "pink", angle = -6, children }: { tone?: "pink" | "blue" | "white" | "yellow"; angle?: number; children: React.ReactNode }) {
   return (
     <span className={`sticker sticker-${tone}`} style={{ ["--r" as any]: `${angle}deg` }}>

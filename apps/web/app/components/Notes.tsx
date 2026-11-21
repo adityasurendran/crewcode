@@ -3,8 +3,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useApp } from "../providers";
 import { get, put, API } from "../lib/api";
 
-// Shared team notes — one small doc per project, edited live by everyone.
-// Last-write-wins: we don't clobber text while you're actively typing.
+
+
 export function Notes() {
   const { activeProject, owner } = useApp();
   const [content, setContent] = useState("");

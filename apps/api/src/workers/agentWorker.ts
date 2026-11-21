@@ -1,6 +1,6 @@
-﻿// Agent worker daemon — polls crew:agent-jobs, runs headless OpenCode job, reports.
-// Run: npm run worker:agent -w apps/api
-// Prod: 1 daemon per N sandboxes, each job in its own E2B/Daytona sandbox.
+﻿
+
+
 import { redis } from "../lib/queue.js";
 import { QUEUES } from "../lib/queue.js";
 import { query } from "../lib/db.js";
@@ -14,8 +14,8 @@ import { runForOwner, type RunResult } from "../lib/agent-pool.js";
 import { routeFor } from "../lib/cost-optimizer.js";
 import { e2bRunAgent } from "../lib/e2b-deploy.js";
 
-// Rough token estimate for one agent run (prompt+output). Phase 1: real meter from provider usage.
-// Cost optimizer selects tier per job kind; agent runs default to 'standard' tier.
+
+
 const DEFAULT_KIND = "agent_run";
 
 async function estimateForProject(projectId: string, kind: string): Promise<{ tokens: number; model: string; tier: string }> {
@@ -26,7 +26,7 @@ async function estimateForProject(projectId: string, kind: string): Promise<{ to
   } catch {}
   const { TIER_MODEL } = await import("../lib/cost-optimizer.js");
   const model = TIER_MODEL[tier as keyof typeof TIER_MODEL] ?? "opencode-go/mimo-v2.6-pro";
-  // Tier-scaled token estimate: heavy/frontier runs do more work.
+  
   const base = tier === "frontier" ? 40000 : tier === "heavy" ? 25000 : tier === "standard" ? 15000 : 8000;
   return { tokens: base, model, tier };
 }
@@ -41,9 +41,9 @@ async function reportUsage(projectId: string, taskId: string, tokens: number) {
       body: JSON.stringify({ project_id: projectId, task_id: taskId, tokens, model: "default" }),
     });
   } catch {
-    // metering must never break main flow
+    
   }
-  // Also emit Stripe meter event if project has stripe_customer_id.
+  
   try {
     const { query } = await import("../lib/db.js");
     const projs = await query<any>(`select stripe_customer_id from projects where id=$1`, [projectId]).catch(() => []);
@@ -56,7 +56,7 @@ async function reportUsage(projectId: string, taskId: string, tokens: number) {
       });
     }
   } catch {
-    // stripe meter optional
+    
   }
 }
 
@@ -64,7 +64,7 @@ async function handleJob(raw: string) {
   const job = JSON.parse(raw) as { taskId: string; projectId: string; objective: string; workdir: string; sessionKey?: string; threadId?: string; ownerId?: string };
   console.log(`[agent-worker] picked up task ${job.taskId}: ${job.objective}`);
 
-  // One run per task at a time; a duplicate job for a running task is dropped.
+  
   const { withLock, runLockKey } = await import("../lib/runlock.js");
   const res = await withLock(runLockKey(job.taskId), () => runJobBody(job));
   if (!res.acquired) {
@@ -78,7 +78,7 @@ async function handleJob(raw: string) {
 
 async function runJobBody(job: { taskId: string; projectId: string; objective: string; workdir: string; sessionKey?: string; threadId?: string; ownerId?: string }) {
 
-  // Budget gate before spending tokens on the LLM.
+  
   const budget = await checkBudget(job.taskId).catch(() => ({ ok: true, used: 0, budget: 0 }));
   if (!budget.ok) {
     await query(`insert into events (task_id, type, payload) values ($1,'error',$2)`, [
@@ -90,7 +90,7 @@ async function runJobBody(job: { taskId: string; projectId: string; objective: s
 
   const graph = await buildGraph(job.projectId, job.workdir).catch(() => null);
   let slice = graph ? sliceForTask(graph, []) : "no graph (repo missing)";
-  // Imported database schema (if any) — agents generate code against real tables.
+  
   try {
     const { dbSchemaContext } = await import("../lib/db-import.js");
     slice += await dbSchemaContext(job.projectId);
@@ -103,7 +103,7 @@ async function runJobBody(job: { taskId: string; projectId: string; objective: s
   const { writeFile } = await import("node:fs/promises");
   const { mkdirSync } = await import("node:fs");
   const { execSync } = await import("node:child_process");
-  // Keep the task brief OUT of the worktree so it never gets committed as a change.
+  
   const promptDir = `.crew/prompts`;
   try {
     mkdirSync(promptDir, { recursive: true });
@@ -111,17 +111,17 @@ async function runJobBody(job: { taskId: string; projectId: string; objective: s
   } catch {}
   let agentOutput = "";
   try {
-    // If E2B sandbox, run agent inside it; else local OpenCode session/shell.
+    
     const taskRows0 = await query<any>(`select * from tasks where id=$1`, [job.taskId]).catch(() => []);
     const sbxId = taskRows0[0]?.sandbox_id ?? "";
     if (sbxId.startsWith("e2b-")) {
       const e2bResult = await e2bRunAgent(sbxId.replace(/^e2b-/, ""), "/home/user/repo", job.objective);
       if (!e2bResult.ok) throw new Error(e2bResult.note);
     } else {
-      // Persistent per-teammate OpenCode instance (falls back to one-shot internally).
+      
       const ownerId = taskRows0[0]?.owner_id ?? "unknown";
-      // Drive the turn through the opencode server session API (this is the
-      // path verified in the packaged app; it also streams deltas).
+      
+      
       const { publishDelta, publishStatus } = await import("../lib/stream-bus.js");
       const { runViaServer } = await import("../lib/agent-pool.js");
       if (job.threadId) await publishStatus(job.threadId, "thinking");
@@ -138,7 +138,7 @@ async function runJobBody(job: { taskId: string; projectId: string; objective: s
     const est = await estimateForProject(job.projectId, DEFAULT_KIND);
     await addUsage(job.taskId, est.tokens).catch(() => {});
     await reportUsage(job.projectId, job.taskId, est.tokens);
-    // E2B sandbox: pull changed files back into .crew/sync before local sync.
+    
     const taskRows = await query<any>(`select * from tasks where id=$1`, [job.taskId]).catch(() => []);
     if (taskRows[0]?.sandbox_id?.startsWith("e2b-")) {
       try {
@@ -161,9 +161,9 @@ async function runJobBody(job: { taskId: string; projectId: string; objective: s
       await publishStatus(job.threadId, "checking").catch(() => {});
     }
 
-    // A conversational message (or a tool-only turn) can end with no text and
-    // no files. Ask once more, explicitly for a text answer, before falling
-    // back to a canned line.
+    
+    
+    
     if (!agentOutput.trim() && !(sync.files?.length)) {
       try {
         const { runViaServer } = await import("../lib/agent-pool.js");
@@ -189,8 +189,8 @@ async function runJobBody(job: { taskId: string; projectId: string; objective: s
       }
     }
 
-    // Chat: post the agent's reply before enqueueing the merge, so a merge
-    // fallback can never race ahead of the real answer.
+    
+    
     if (job.threadId) {
       const { postMessage } = await import("../lib/threads.js");
       const mode = taskRows[0]?.mode ?? "build";

@@ -1,5 +1,5 @@
 :root {
-  /* Riso paper + two spot inks */
+  
   --bg: #e7e9e3;
   --surface: #f7f6ef;
   --surface-2: #eef0e8;
@@ -28,7 +28,7 @@
   --radius: 3px;
   --radius-lg: 4px;
   --radius-xl: 6px;
-  /* Ink offset, not a soft shadow: the second impression sits off-register */
+  
   --shadow-sm: 2px 2px 0 rgba(22, 26, 51, 0.18);
   --shadow: 4px 4px 0 var(--accent-2);
   --shadow-lg: 7px 7px 0 rgba(22, 26, 51, 0.22);
@@ -122,7 +122,7 @@ h3 {
   border-radius: 1px;
 }
 
-/* ---------- App shell: ink spine + paper bench ---------- */
+
 .app {
   display: grid;
   grid-template-columns: 228px 1fr;
@@ -261,7 +261,7 @@ h3 {
 }
 
 
-/* ---------- Buttons: stamped controls ---------- */
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -367,7 +367,7 @@ h3 {
 }
 
 
-/* ---------- Cards: paper sheets, not kits ---------- */
+
 .card {
   background: var(--surface);
   border: 1px solid var(--border-strong);
@@ -457,7 +457,7 @@ h3 {
   margin-bottom: 10px;
 }
 
-/* ---------- Badges & chips ---------- */
+
 .badge {
   display: inline-flex;
   align-items: center;
@@ -505,7 +505,7 @@ h3 {
 }
 
 
-/* ---------- Forms ---------- */
+
 .input,
 .select,
 .textarea {
@@ -564,7 +564,7 @@ h3 {
   cursor: pointer;
 }
 
-/* ---------- Tables ---------- */
+
 .table {
   width: 100%;
   border-collapse: collapse;
@@ -597,7 +597,7 @@ h3 {
   background: var(--surface-2);
 }
 
-/* ---------- Kanban ---------- */
+
 .kanban {
   display: grid;
   grid-template-columns: repeat(5, minmax(210px, 1fr));
@@ -677,7 +677,7 @@ h3 {
   background: var(--accent);
 }
 
-/* ---------- Stream ---------- */
+
 .stream {
   display: flex;
   flex-direction: column;
@@ -722,7 +722,7 @@ h3 {
   color: var(--text-3);
 }
 
-/* ---------- Chat: transcript + sign-off slip ---------- */
+
 .chat {
   display: flex;
   flex-direction: column;
@@ -758,7 +758,7 @@ h3 {
   border-left: 3px solid var(--accent-2);
 }
 
-/* The one loud thing on the screen: a physical sign-off slip. */
+
 .signoff {
   align-self: flex-start;
   width: min(100%, 440px);
@@ -810,7 +810,7 @@ h3 {
   }
 }
 
-/* ---------- Modal ---------- */
+
 .overlay {
   position: fixed;
   inset: 0;
@@ -845,7 +845,7 @@ h3 {
   }
 }
 
-/* ---------- Toasts ---------- */
+
 .toasts {
   position: fixed;
   top: 16px;
@@ -877,7 +877,7 @@ h3 {
   }
 }
 
-/* ---------- Misc ---------- */
+
 .skeleton {
   background: linear-gradient(90deg, #eceef2 25%, #f5f6f9 50%, #eceef2 75%);
   background-size: 200% 100%;
@@ -1084,7 +1084,7 @@ h3 {
   }
 }
 
-/* ---------- Good Boy: hero ---------- */
+
 .hero {
   background: var(--accent);
   border: 2px solid var(--border-strong);
@@ -1112,7 +1112,7 @@ h3 {
   max-width: 560px;
 }
 
-/* ---------- Good Boy: stickers ---------- */
+
 .sticker {
   display: inline-flex;
   align-items: center;
@@ -1167,7 +1167,7 @@ h3 {
   }
 }
 
-/* ---------- Good Boy: ticker ---------- */
+
 .ticker {
   background: var(--accent-2);
   color: #fff;
@@ -1202,7 +1202,7 @@ h3 {
   }
 }
 
-/* ---------- Good Boy: wave edge ---------- */
+
 .wave-edge {
   display: block;
   width: 100%;
@@ -1210,7 +1210,7 @@ h3 {
   margin-bottom: -1px;
 }
 
-/* ---------- Footer: print colophon ---------- */
+
 .wave-edge {
   display: none;
 }
@@ -1306,7 +1306,7 @@ h3 {
   background: #d3d9f7;
 }
 
-/* ---------- Friend mode: one screen, one job ---------- */
+
 .friend-app {
   min-height: 100dvh;
   background: var(--bg);
@@ -1900,7 +1900,7 @@ h3 {
   }
 }
 
-/* ---------- Creator Passport: a stamped booklet page ---------- */
+
 .passport {
   border: 1px solid var(--border-strong);
   background: var(--surface);
@@ -2249,7 +2249,7 @@ h3 {
 }
 
 
-/* ---------- Responsive (mobile/tablet) ---------- */
+
 @media (max-width: 1080px) {
   .sidebar {
     position: static;

@@ -1,6 +1,6 @@
-// Cloudflare Quick Tunnel manager — exposes the single CrewCode server
-// (UI + API on one port) on a public https://*.trycloudflare.com URL. No account needed.
-// Requires the `cloudflared` binary on PATH (https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/).
+
+
+
 import { spawn, ChildProcess } from "node:child_process";
 
 export type TunnelStatus = {
@@ -20,12 +20,12 @@ let verified = false;
 let verifyTimer: ReturnType<typeof setTimeout> | null = null;
 
 export function targetUrl(): string {
-  // One server serves both the UI and the API, so the tunnel points at it.
+  
   const port = process.env.PORT ?? process.env.API_PORT ?? "4100";
   return process.env.TUNNEL_TARGET ?? `http://localhost:${port}`;
 }
 
-// Extract https://xxx.trycloudflare.com from cloudflared log lines.
+
 export function parseTunnelUrl(line: string): string | null {
   const m = line.match(/https:\/\/[a-z0-9-]+\.trycloudflare\.com/i);
   return m ? m[0] : null;
@@ -45,7 +45,7 @@ export function status(): TunnelStatus {
   const alive = !!proc && proc.exitCode === null && !proc.killed;
   return {
     running: alive,
-    installed: true, // refined by /share/tunnel/status which calls isInstalled()
+    installed: true, 
     ready: alive && !!cachedUrl && verified,
     url: alive ? cachedUrl : null,
     pid: alive ? (proc!.pid ?? null) : null,
@@ -54,9 +54,9 @@ export function status(): TunnelStatus {
   };
 }
 
-// Quick tunnels publish a hostname before DNS/TLS is ready; this network can
-// take 30–60s. Keep checking in the background so status becomes "ready"
-// without holding the Start button hostage.
+
+
+
 function scheduleVerify(url: string) {
   if (verifyTimer) clearTimeout(verifyTimer);
   let attempts = 0;
@@ -98,7 +98,7 @@ export async function start(): Promise<TunnelStatus> {
     proc = null;
   });
 
-  // Wait up to 25s for the URL to appear in logs.
+  
   const deadline = Date.now() + 25_000;
   while (!cachedUrl && Date.now() < deadline) {
     if (!proc || proc.exitCode !== null) throw new Error("cloudflared exited before publishing a URL");
@@ -106,8 +106,8 @@ export async function start(): Promise<TunnelStatus> {
   }
   if (!cachedUrl) throw new Error("timed out waiting for trycloudflare.com URL (check network/firewall)");
 
-  // Give the first public check a short head start, then let it continue in
-  // the background; the Share page polls until the link is live.
+  
+  
   const url = cachedUrl;
   scheduleVerify(url);
   const verifyUntil = Date.now() + 8000;

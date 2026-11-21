@@ -1,7 +1,7 @@
-// Auth — Phase 1: JWT (Clerk/Auth.js compatible) + project API keys.
-// JWT: verify Bearer token, extract org/project claims.
-// API key: x-api-key header for workers/CI.
-// Dev: ALLOW_ANON unset → passthrough with x-actor.
+
+
+
+
 import type { Request, Response, NextFunction } from "express";
 import { createHash, randomBytes } from "node:crypto";
 import { query } from "./db.js";
@@ -30,23 +30,23 @@ export async function verifyProjectKey(key: string): Promise<string | null> {
   return hit ? hit.project_id : null;
 }
 
-// Minimal JWT decode (HS256) — no external dep for Phase 1.
-// Production: swap verifyJWT for Clerk Auth.js verifyToken (RS256 + JWKS).
+
+
 export function decodeJwt(token: string): { sub?: string; org_id?: string; project_id?: string; exp?: number } | null {
   try {
     const parts = token.split(".");
     if (parts.length !== 3) return null;
     const payload = Buffer.from(parts[1].replace(/-/g, "+").replace(/_/g, "/"), "base64").toString("utf8");
     const j = JSON.parse(payload);
-    if (j.exp && j.exp * 1000 < Date.now()) return null; // expired
+    if (j.exp && j.exp * 1000 < Date.now()) return null; 
     return j;
   } catch {
     return null;
   }
 }
 
-// Guests invited with a PIN may only reach the collaborative surface of the
-// one project they joined — never host settings, billing, or other projects.
+
+
 const GUEST_RULES: Array<[string, RegExp]> = [
   ["GET", /^\/projects$/],
   ["GET", /^\/threads(?:\/.*)?$/],
@@ -68,7 +68,7 @@ function guestAllowed(method: string, path: string) {
 }
 
 export async function requireAuth(req: Request, res: Response, next: NextFunction) {
-  // 1) Project API key (workers, CI, integrations)
+  
   const apiKey = (req.headers["x-api-key"] as string) ?? "";
   if (apiKey) {
     const pid = await verifyProjectKey(apiKey);
@@ -80,7 +80,7 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
     return res.status(401).json({ error: "invalid api key" });
   }
 
-  // 2) JWT Bearer (Clerk/Auth.js compatible — swap verifyJWT for theirs in prod)
+  
   const auth = (req.headers.authorization as string) ?? "";
   if (auth.startsWith("Bearer ")) {
     const claims = decodeJwt(auth.slice(7));
@@ -93,8 +93,8 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
     return res.status(401).json({ error: "invalid or expired token" });
   }
 
-  // 2b) Guest token (PIN share join) — scoped to the shared project only.
-  // SSE can't send headers, so the stream route may pass ?guest_token=.
+  
+  
   const guestToken =
     (req.headers["x-guest-token"] as string) ??
     (typeof req.query.guest_token === "string" ? req.query.guest_token : "") ??
@@ -114,7 +114,7 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
         if (target && target !== g.project_id) {
           return res.status(403).json({ error: "this project is not shared with you" });
         }
-        // SSE and detail routes carry an id, not a project_id: verify the row.
+        
         const tm = path.match(/^\/threads\/([0-9a-fA-F-]{20,})(?:\/|$)/);
         if (tm) {
           const row = (await query<any>(`select project_id from threads where id=$1`, [tm[1]]).catch(() => []))[0];
@@ -144,8 +144,8 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
     }
   }
 
-  // 3) Dev passthrough — but a public tunnel link is never anonymous. Only
-  // the PIN join endpoint (mounted before auth) is public.
+  
+  
   const viaCloudflare = !!(req.headers["cf-ray"] || req.headers["cf-connecting-ip"]);
   if (viaCloudflare) {
     return res.status(401).json({ error: "enter the project PIN to join", join: "/share" });

@@ -5,7 +5,7 @@ import { costFor } from "../lib/billing.js";
 
 export const dashboardRouter = Router();
 
-// GET /dashboard?project_id= — single-call summary for the web dashboard
+
 dashboardRouter.get("/", async (req, res) => {
   const { project_id } = req.query as { project_id?: string };
   if (!project_id) return res.status(400).json({ error: "project_id required" });

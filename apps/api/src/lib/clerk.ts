@@ -1,6 +1,6 @@
-// Clerk/Auth.js JWKS verify — real RS256 verification without @clerk/nextjs peer dep.
-// Phase 1: decode-only when CLERK_JWT_VERIFIER != 'clerk' (dev).
-// Phase 2: full RS256 JWKS verify when CLERK_JWKS_URL set — fetch keys, verify signature.
+
+
+
 import { createPublicKey, createVerify, X509Certificate } from "node:crypto";
 import type { Request, Response, NextFunction } from "express";
 
@@ -25,7 +25,7 @@ function base64urlToBuffer(s: string): Buffer {
 }
 
 function derToPublicKeyJwk(key: JwksKey): any {
-  // Prefer x5c (cert PEM) — simplest cross-runtime path.
+  
   if (key.x5c?.[0]) {
     const cert = new X509Certificate(Buffer.from(`-----BEGIN CERTIFICATE-----\n${key.x5c[0]}\n-----END CERTIFICATE-----`));
     return cert.publicKey;
@@ -44,7 +44,7 @@ export async function verifyClerkJwt(token: string): Promise<{ sub?: string; org
   if (parts.length !== 3) return null;
   const [hB64, pB64, sigB64] = parts;
 
-  // Decode header/payload first (always).
+  
   let header: any, payload: any;
   try {
     header = JSON.parse(base64urlToBuffer(hB64).toString("utf8"));
@@ -54,14 +54,14 @@ export async function verifyClerkJwt(token: string): Promise<{ sub?: string; org
   }
   if (payload.exp && payload.exp * 1000 < Date.now()) return null;
 
-  // Dev fast-path: no JWKS configured → decode-only (still validates exp).
+  
   const jwksUrl = process.env.CLERK_JWKS_URL;
   const verifierMode = process.env.CLERK_JWT_VERIFIER;
   if (!jwksUrl || verifierMode !== "clerk") {
     return { sub: payload.sub, org_id: payload.org_id, project_id: payload.project_id };
   }
 
-  // Full RS256 verify against JWKS.
+  
   try {
     const keys = await fetchJwks();
     const kid = header.kid;

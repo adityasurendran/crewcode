@@ -1,4 +1,4 @@
-// RLS-aware query helper — sets app.current_org_id per request for tenant isolation.
+
 import { Pool } from "pg";
 
 const connectionString = process.env.DATABASE_URL ?? "postgres://crewcode:crewcode@localhost:5432/crewcode";
@@ -15,7 +15,7 @@ export async function queryWithOrg<T = any>(text: string, params: any[], orgId: 
   }
 }
 
-// Keep legacy query() for system jobs that don't need tenant scoping.
+
 export async function query<T = any>(text: string, params?: any[]): Promise<T[]> {
   const res = await pool.query(text, params);
   return res.rows as T[];

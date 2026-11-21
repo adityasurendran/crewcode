@@ -1,5 +1,5 @@
-// Stripe billing webhook — verifies signature, maps events to tokens/credits.
-// Secret: STRIPE_WEBHOOK_SECRET (env://STRIPE_WEBHOOK_SECRET).
+
+
 import { Router } from "express";
 import { raw } from "express";
 import { createHmac, timingSafeEqual } from "node:crypto";
@@ -25,7 +25,7 @@ export function verifyStripeSignature(payload: Buffer, sig: string, secret: stri
   }
 }
 
-// raw body needed for signature verification — express.json() skips this route via raw parser order
+
 stripeRouter.post("/webhook", raw({ type: "application/json" }), async (req, res) => {
   const secret = process.env.STRIPE_WEBHOOK_SECRET;
   const sig = (req.headers["stripe-signature"] as string) ?? "";

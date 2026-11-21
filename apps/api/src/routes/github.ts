@@ -23,7 +23,7 @@ githubRouter.post("/import", async (req, res) => {
   res.json(rows[0]);
 });
 
-// POST /github/export {task_id} — push task branch + open draft PR
+
 githubRouter.post("/export", async (req, res) => {
   const { task_id, title } = req.body ?? {};
   if (!task_id) return res.status(400).json({ error: "task_id required" });

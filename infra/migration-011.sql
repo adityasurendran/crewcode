@@ -1,4 +1,4 @@
--- Migration 011: PIN share sessions (Live Share-style guest access)
+
 create table if not exists shares (
   id uuid primary key default gen_random_uuid(),
   project_id uuid references projects(id) on delete cascade,

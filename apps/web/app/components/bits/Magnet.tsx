@@ -1,5 +1,5 @@
-// Vendored from DavidHDev/react-bits (MIT): Magnet.
-// https://github.com/DavidHDev/react-bits/blob/main/src/ts-default/Animations/Magnet
+
+
 'use client';
 
 import React, { useState, useEffect, useRef, type ReactNode, type HTMLAttributes } from 'react';

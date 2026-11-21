@@ -12,7 +12,7 @@ const NAV_SIMPLE = [
   { href: "/share", label: "Share" },
 ];
 
-// Power features stay reachable but out of the way — one tap, invisible by default.
+
 const NAV_MORE = [
   { href: "/board", label: "Board" },
   { href: "/activity", label: "Activity" },
@@ -36,8 +36,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     } catch {}
   }, []);
 
-  // A friend opening the public link should land on the PIN page, not an
-  // empty host workspace.
+  
+  
   useEffect(() => {
     if (!publicHost) return;
     if (!guest && pathname !== "/share") {

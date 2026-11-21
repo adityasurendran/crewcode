@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-// CrewCode capability MCP server — the ONLY sanctioned way for opencode agents
-// to touch shared services. Forwards to POST /capabilities/:tool on the host
-// API, which enforces per-task scopes, token budgets, vault secrets and audit.
-//
-// Spawned by opencode from the CrewCode profile (`mcp.crewcode`), one instance
-// per teammate server with CREW_OWNER set. Plain Node, no build step.
+
+
+
+
+
+
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";

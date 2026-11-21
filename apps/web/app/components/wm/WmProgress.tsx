@@ -1,5 +1,5 @@
-// Adapted from Watermelon UI "deployment-card" SegmentedProgress (MIT).
-// Segmented bar; progress null = indeterminate working shimmer.
+
+
 "use client";
 import { motion } from "motion/react";
 

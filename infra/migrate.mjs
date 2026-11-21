@@ -1,6 +1,6 @@
-// Applies infra/*.sql in order: schema.sql first, then migration-*.sql sorted.
-// Idempotent (IF NOT EXISTS + schema_migrations). Bundled as CommonJS for the
-// desktop app, where it reads SQL from CREW_INFRA (resources) instead of its dir.
+
+
+
 import { readFileSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";

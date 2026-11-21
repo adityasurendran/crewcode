@@ -1,5 +1,5 @@
-// Crew members — per-project role + experience, used to adapt each person's AI
-// teammate and to build their Creator Passport.
+
+
 import { Router } from "express";
 import { z } from "zod";
 import { query } from "../lib/db.js";
@@ -78,8 +78,8 @@ crewRouter.put("/", async (req, res) => {
   }
 });
 
-// POST /crew/leave {project_id, owner_id} — remove a person's data from a project
-// (thread, messages, crew profile). Merged work stays as project history.
+
+
 crewRouter.post("/leave", async (req, res) => {
   const parsed = z.object({ project_id: z.string().uuid(), owner_id: z.string().min(1) }).safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error);

@@ -1,6 +1,6 @@
-﻿// Cost optimizer — route "chores" to small cheap models, "integration" to large.
-// Chores: summarization, event classification, simple patches.
-// Integration: semantic conflict resolution, complex refactors, schema migrations.
+﻿
+
+
 export type ModelTier = "tiny" | "cheap" | "standard" | "heavy" | "frontier";
 
 export function selectModelFor(kind: string): ModelTier {
@@ -15,8 +15,8 @@ export function selectModelFor(kind: string): ModelTier {
   return "standard";
 }
 
-// Single model backend: every tier points at opencode-go models. Agent runs
-// always use the mandated model from Settings; tiers only label estimates.
+
+
 export const TIER_MODEL: Record<ModelTier, string> = {
   tiny: "opencode-go/deepseek-v4.1-flash",
   cheap: "opencode-go/deepseek-v4.1-flash",
@@ -25,8 +25,8 @@ export const TIER_MODEL: Record<ModelTier, string> = {
   frontier: "opencode-go/kimi-k3",
 };
 
-// Display-only estimates. Real billing meters a flat $0.002/1K (see
-// routes/metering.ts) until gateway pricing is configured — these are not quotes.
+
+
 export const TIER_COST_PER_1K: Record<ModelTier, number> = {
   tiny: 0.002,
   cheap: 0.002,

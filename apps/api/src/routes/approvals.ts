@@ -1,4 +1,4 @@
-// Human approval gate — young teams approve AI changes before they merge.
+
 import { Router } from "express";
 import { query } from "../lib/db.js";
 import { redis, QUEUES } from "../lib/queue.js";
@@ -16,7 +16,7 @@ async function threadNote(task: any, text: string, meta: Record<string, unknown>
   } catch {}
 }
 
-// Once a decision is made, the sign-off slip must stop being actionable.
+
 async function clearSlip(task: any) {
   if (!task.thread_id) return;
   await query(

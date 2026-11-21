@@ -1,10 +1,10 @@
-﻿// Per-teammate persistent OpenCode instances, running CrewCode's TAILORED profile.
-//
-// Each teammate gets a long-lived `opencode serve` on a stable port, launched with
-// OPENCODE_CONFIG pointed at our generated profile (mandated model + provider key,
-// our agent prompt, scoped permissions). Task runs attach to that server and are
-// pinned to the mandated model. The central integration agent runs on its own
-// persistent instance keyed "__integrator__".
+﻿
+
+
+
+
+
+
 import { spawn, execSync } from "node:child_process";
 import { resolve } from "node:path";
 import { query } from "./db.js";
@@ -15,8 +15,8 @@ const BASE = Number(process.env.OPENCODE_BASE_PORT ?? 4096);
 const RANGE = Number(process.env.OPENCODE_PORT_RANGE ?? 200);
 export const INTEGRATOR_OWNER = "__integrator__";
 
-// Our instances run with a KNOWN basic-auth password so the control plane can
-// talk to the opencode server API (session streaming) — not just the CLI.
+
+
 const SERVER_USER = process.env.OPENCODE_SERVER_USERNAME ?? "opencode";
 const SERVER_PASS = process.env.OPENCODE_SERVER_PASSWORD ?? "crewcode-local";
 export function serverAuthHeader(): Record<string, string> {
@@ -106,9 +106,9 @@ async function saveSession(ownerId: string, taskId: string, sessionId: string) {
 
 export type ListedSession = { id?: string; directory?: string; created?: number; updated?: number };
 
-// Pure session picker (unit-tested): newest session born during this run whose
-// directory is exactly this task's worktree. Returns null rather than a wrong
-// session — a missed capture degrades to a fresh session, never a stranger's.
+
+
+
 export function pickSession(sessions: ListedSession[], workdir: string, runStartMs: number): string | null {
   if (!Array.isArray(sessions)) return null;
   const want = resolve(workdir).toLowerCase();
@@ -122,8 +122,8 @@ export function pickSession(sessions: ListedSession[], workdir: string, runStart
 
 function captureSession(workdir: string, runStartMs: number): string | null {
   try {
-    // NOTE: `opencode session list` is scoped to the CURRENT PROJECT (cwd) —
-    // it must run from the task worktree, or task sessions are invisible.
+    
+    
     const out = execSync(`${opencodeCmd()} session list --format json -n 100`, { cwd: workdir, stdio: "pipe", timeout: 25000 }).toString();
     const start = out.indexOf("[");
     const arr = JSON.parse(out.slice(start >= 0 ? start : 0));
@@ -135,9 +135,9 @@ function captureSession(workdir: string, runStartMs: number): string | null {
 
 const _quoteRaw = (s: string) => s.replace(/"/g, '\\"');
 
-// Shell-safe quoting: escape double quotes AND collapse newlines/tabs.
-// Windows cmd.exe truncates commands at a literal newline inside quotes,
-// which silently drops every flag after the objective (--attach/--session).
+
+
+
 export function quoteForShell(s: string): string {
   return _quoteRaw(s).replace(/[\r\n\t]+/g, " ").slice(0, 4000);
 }
@@ -191,13 +191,13 @@ export async function runForOwner(ownerId: string, taskId: string, workdir: stri
   }
 }
 
-// Central integration agent — its own persistent instance, integrator profile.
+
 export async function runIntegrator(taskId: string, workdir: string, objective: string): Promise<RunResult> {
   return runForOwner(INTEGRATOR_OWNER, taskId, workdir, objective, "integrator");
 }
 
-// Streaming variant for chat: spawns `opencode run` and calls onDelta with the
-// accumulated stdout as tokens arrive, so the reply can stream into the thread.
+
+
 export async function runForOwnerStreaming(
   ownerId: string,
   taskId: string,
@@ -269,8 +269,8 @@ export async function runForOwnerStreaming(
   });
 }
 
-// Latest assistant text from a session's message list (assistant messages only,
-// plus whether that message reports completion).
+
+
 function latestAssistant(arr: any[]): { text: string; done: boolean; error: string } {
   let done = false;
   for (let k = arr.length - 1; k >= 0; k--) {
@@ -294,9 +294,9 @@ function latestAssistant(arr: any[]): { text: string; done: boolean; error: stri
   return { text: "", done, error: "" };
 }
 
-// Subscribe to the opencode server's SSE event stream and emit the growing
-// assistant text for our session — true per-token deltas. Best-effort: if the
-// stream errors or is unavailable, polling still drives completion.
+
+
+
 async function streamSessionEvents(
   base: string,
   sid: string,
@@ -352,13 +352,13 @@ async function streamSessionEvents(
       }
     }
   } catch {
-    // aborted or stream ended — fine
+    
   }
 }
 
-// Drive a turn through the opencode SERVER session API so the reply streams
-// token-by-token (the CLI can't). Same persistent instance + worktree; the
-// caller still syncs + merges exactly as before. No detached processes.
+
+
+
 export async function runViaServer(
   ownerId: string,
   sessionKey: string,
@@ -382,14 +382,14 @@ export async function runViaServer(
   const D = encodeURIComponent(resolve(workdir));
   const H = { ...serverAuthHeader(), "content-type": "application/json" };
 
-  // Stale instance from before we set a known password? Restart once.
+  
   const authOk = await fetch(`${instance.url}/session/status?directory=${D}`, { headers: H })
     .then((r) => r.status === 200)
     .catch(() => false);
   if (!authOk) {
     await stopInstance(ownerId).catch(() => {});
-    // Wait for the old server to actually release the port before respawning,
-    // or ensureInstance reuses the dying (wrong-password) process.
+    
+    
     for (let i = 0; i < 25; i++) {
       const stillUp = await fetch(`${instance.url}/session/status`, { headers: H })
         .then(() => true)
@@ -402,7 +402,7 @@ export async function runViaServer(
   }
   const base = instance.url;
 
-  // Reuse the stored session if it still exists, else create one in the worktree.
+  
   let sid = await getSession(ownerId, sessionKey);
   if (sid) {
     const alive = await fetch(`${base}/session/${sid}?directory=${D}`, { headers: H })
@@ -421,7 +421,7 @@ export async function runViaServer(
 
   const { CREW_MODEL } = await profileEnv(role, role === "integrator" ? undefined : ownerId);
   const [providerID, modelID] = String(CREW_MODEL || "opencode-go/mimo-v2.6-pro").split("/");
-  // Only consider messages created by THIS turn (skip prior conversation).
+  
   let startIndex = 0;
   try {
     const pre = await fetch(`${base}/session/${sid}/message?directory=${D}`, { headers: H });
@@ -437,10 +437,10 @@ export async function runViaServer(
   }).catch(() => null);
   if (!pr || !pr.ok) return fail(`prompt ${pr ? pr.status : "error"}`, instance, sid);
 
-  // Poll the message list for growing assistant text; finish when it stops
-  // changing (status "idle" isn't always reported once a session goes quiet).
-  // Live deltas: prefer the event stream (per-token); polling is the fallback
-  // and the source of truth for completion. Only ever grow the emitted text.
+  
+  
+  
+  
   let emitted = "";
   const emit = (t: string) => {
     if (t && t.length > emitted.length) {
@@ -485,14 +485,14 @@ export async function runViaServer(
         done = a.done;
       }
     } catch {}
-    // A model/gateway error (e.g. retired model) is a hard failure — never
-    // report it as an empty successful turn.
+    
+    
     if (agentError) return fail(`agent error: ${agentError}`, instance, sid);
     if (changed) stable = 0;
     else stable++;
-    // A completed turn with no text (tool-only) still counts as done; the
-    // worker composes a reply from the files it changed. Only accept it once
-    // the session is genuinely idle, never mid-turn.
+    
+    
+    
     if (done && !last) doneEmpty++;
     else doneEmpty = 0;
     if (doneEmpty >= 8) {
@@ -502,8 +502,8 @@ export async function runViaServer(
       const busy = st && JSON.stringify((st as any)[sid] ?? "").includes("busy");
       if (!busy) return finish("", `session ${sid}`, true);
     }
-    // Done when the session reports idle, the assistant message completes, or
-    // the text settles.
+    
+    
     if ((idle && Date.now() - t0 > 1200) || (last && done)) {
       const mr2 = await fetch(`${base}/session/${sid}/message?directory=${D}`, { headers: H }).catch(() => null);
       if (mr2 && mr2.ok) {

@@ -55,7 +55,7 @@ export default function Share() {
     load();
   }, [load, publicHost, guest]);
 
-  // The link can be live before DNS is ready; keep checking until it is.
+  
   useEffect(() => {
     if (!pin || tunnel?.ready) return;
     const id = setInterval(async () => {
@@ -118,7 +118,7 @@ export default function Share() {
 
   if (!ready || (loading && !publicHost)) return <Skeleton h={300} r={12} />;
 
-  // Friend side: exactly one screen, one field, one button.
+  
   if (publicHost && !guest) {
     return (
       <div className="friend-join">

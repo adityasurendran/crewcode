@@ -1,4 +1,4 @@
--- Migration 012: per-teammate persistent OpenCode instances + sessions
+
 create table if not exists agent_instances (
   owner_id text primary key,
   port int not null,

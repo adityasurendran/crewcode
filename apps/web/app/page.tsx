@@ -40,7 +40,7 @@ export default function Home() {
 
   if (!ready) return <Skeleton h={320} r={12} />;
 
-  // Friends get the chat and nothing else.
+  
   if (guest) return <Chat />;
 
   if (projects.length === 0 || forceNew) {

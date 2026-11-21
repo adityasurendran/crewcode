@@ -21,8 +21,8 @@ const MODE_HELP: Record<Mode, string> = {
   review: "Review: checks for bugs and suggests fixes. Nothing is changed.",
 };
 
-// One continuous chat per person. Sending a message runs the agent and merges
-// the result — the user never sees "tasks".
+
+
 export function Chat() {
   const { activeProject, owner, ready, toast, guest } = useApp();
   const [threadId, setThreadId] = useState("");
@@ -76,7 +76,7 @@ export function Chat() {
     audioRef.current = a;
   }, []);
 
-  // Friends should hear the helper by default; the text fallback is always there.
+  
   useEffect(() => {
     if (!guest || !voiceCfg?.configured) return;
     try {
@@ -177,7 +177,7 @@ export function Chat() {
     } catch {}
   }
 
-  // Agent replies stream in live.
+  
   useEffect(() => {
     if (!threadId) return;
     let es: EventSource | null = null;
@@ -216,8 +216,8 @@ export function Chat() {
     return () => es?.close();
   }, [threadId, speak]);
 
-  // SSE can be blocked by a tunnel or a sleeping laptop. While the helper is
-  // working, poll the thread too so a reply/sign-off always lands.
+  
+  
   useEffect(() => {
     if (!status || !activeProject || !threadId || !owner) return;
     let stop = false;

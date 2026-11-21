@@ -1,5 +1,5 @@
-// Deployment status polling — check Railway/Fly/Vercel for live deployment state.
-// GET /deployments/:id/status — polls provider for a preview/prod deployment.
+
+
 import { Router } from "express";
 import { query } from "../lib/db.js";
 import { audit } from "../lib/audit.js";
@@ -30,7 +30,7 @@ deploymentStatusRouter.get("/:id/status", async (req, res) => {
         detail.error = String(e?.message ?? e).slice(0, 200);
       }
     } else {
-      status = "live"; // stub assumes live
+      status = "live"; 
     }
   } else if (provider === "fly") {
     const machineId = meta.machine_id;
@@ -64,10 +64,10 @@ deploymentStatusRouter.get("/:id/status", async (req, res) => {
         detail.error = String(e?.message ?? e).slice(0, 200);
       }
     } else {
-      status = "queued"; // hook fired, id not captured
+      status = "queued"; 
     }
   } else {
-    status = "live"; // stub / local-docker assumed live
+    status = "live"; 
   }
 
   await query(`insert into events (task_id, type, payload) values ($1,'deploy_status',$2)`, [

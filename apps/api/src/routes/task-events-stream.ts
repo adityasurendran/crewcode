@@ -1,4 +1,4 @@
-// SSE stream for a single task's events (live agent feed).
+
 import { Router } from "express";
 import { query } from "../lib/db.js";
 

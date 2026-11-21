@@ -1,7 +1,7 @@
-﻿// Single text completion through the ONE model backend (opencode-go).
-// Replaces every direct OpenAI/Anthropic call: semantic patch and the
-// llm.complete capability run here, on the crew's mandated model, under the
-// tailored CrewCode profile (scoped permissions, no secret access).
+﻿
+
+
+
 export async function opencodeComplete(
   prompt: string,
   opts?: { cwd?: string; timeoutMs?: number; model?: string }

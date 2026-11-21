@@ -1,5 +1,5 @@
-// Adapted from Watermelon UI "copy-confirm" (MIT).
-// Morphing copy button: per-character label animation, blur-morph icon swap.
+
+
 "use client";
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";

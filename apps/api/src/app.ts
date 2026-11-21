@@ -62,21 +62,21 @@ import { providerRouter } from "./routes/provider.js";
 import { requireAuth } from "./lib/auth.js";
 import { rateLimit } from "./lib/ratelimit.js";
 
-// One server for the whole product: the API and the built web UI.
-// API routes are exposed at BOTH the root (workers call http://host:4100/tasks)
-// and under /api (the browser uses same-origin /api). The built Next app
-// (apps/web/out) is served at / when present.
+
+
+
+
 export function createApp() {
   const app = express();
   app.use(cors());
 
   const api = express.Router();
 
-  // Stripe webhook needs the raw body for signature verify — before express.json.
+  
   api.use("/stripe", stripeRouter);
   api.use(express.json({ limit: "1mb" }));
 
-  // Drop empty-string query params so an empty uuid never reaches Postgres.
+  
   api.use((req, _res, next) => {
     if (req.query && typeof req.query === "object") {
       for (const k of Object.keys(req.query)) {
@@ -87,7 +87,7 @@ export function createApp() {
   });
 
   api.get("/health", (_req, res) => res.json({ ok: true, service: "crewcode-api", time: new Date().toISOString() }));
-  // Public join: the PIN is the credential, so this runs before requireAuth.
+  
   api.post("/share/join", joinHandler);
   api.use(clerkAuthMiddleware);
   api.use(requireAuth);
@@ -115,7 +115,7 @@ export function createApp() {
   api.use("/setup", setupRouter);
   api.use("/agents", agentsRouter);
   api.use("/provider", providerRouter);
-  // GitHub webhook — signature-verified, mounted before requireAuth for HMAC check
+  
   api.use("/github/webhook", githubWebhookRouter);
   api.use("/orgs", orgsRouter);
   api.use("/audit", auditRouter);
@@ -150,9 +150,9 @@ export function createApp() {
 
   app.use("/api", api);
 
-  // Serve the built web app, if it exists. Page requests (Accept: text/html)
-  // are resolved to <route>.html BEFORE the root API mount, so /share, /crew,
-  // /passport pages aren't shadowed by their API routers.
+  
+  
+  
   const webOut = resolve(process.cwd(), process.env.WEB_OUT ?? "apps/web/out");
   const webBuilt = existsSync(join(webOut, "index.html"));
   if (webBuilt) {
@@ -164,8 +164,8 @@ export function createApp() {
       } catch {
         rel = req.path.replace(/^\//, "");
       }
-      // Root always serves the app; other clean routes only for real page
-      // navigations (API clients send `*/*` or JSON and fall through).
+      
+      
       if (!rel) return res.sendFile(join(webOut, "index.html"));
       if (!String(req.headers.accept ?? "").includes("text/html")) return next();
       const file = join(webOut, `${rel}.html`);
@@ -174,7 +174,7 @@ export function createApp() {
     });
   }
 
-  app.use(api); // root, for workers and direct API clients
+  app.use(api); 
 
   if (!webBuilt) {
     app.get("/", (_req, res) =>

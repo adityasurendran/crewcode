@@ -1,5 +1,5 @@
-// E2B live file pull — list + download changed files from sandbox into .crew/sync/<taskId>/.
-// Uses real @e2b/code-interpreter (files.read) now that dep is installed.
+
+
 export async function pullFromSandbox(sandboxId: string, taskId: string, sandboxWorkdir = "/home/user/repo"): Promise<string[]> {
   let E2B: any;
   try {
@@ -24,10 +24,10 @@ export async function pullFromSandbox(sandboxId: string, taskId: string, sandbox
       writeFileSync(`${syncDir}/${f}`, file);
       pulled.push(f);
     } catch {
-      // binary or deleted — skip
+      
     }
   }
-  // Also pull untracked new files
+  
   const untracked = await sbx.commands.run(`cd ${sandboxWorkdir} && git ls-files --others --exclude-standard`).catch(() => ({ stdout: "" }));
   for (const f of untracked.stdout.split("\n").map((s: string) => s.trim()).filter(Boolean).slice(0, 50)) {
     try {

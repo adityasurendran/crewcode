@@ -6,16 +6,16 @@ import { createShare, resolveShareByPin, issueGuestToken, revokeShare, listShare
 
 export const shareRouter = Router();
 
-// ---- Tunnel ----
 
-// GET /share/tunnel/status
+
+
 shareRouter.get("/tunnel/status", async (_req, res) => {
   const s = tunnel.status();
   const installed = await tunnel.isInstalled().catch(() => false);
   res.json({ ...s, installed });
 });
 
-// POST /share/tunnel/start — spawn cloudflared quick tunnel for the web UI
+
 shareRouter.post("/tunnel/start", async (_req, res) => {
   try {
     const s = await tunnel.start();
@@ -25,14 +25,14 @@ shareRouter.post("/tunnel/start", async (_req, res) => {
   }
 });
 
-// POST /share/tunnel/stop
+
 shareRouter.post("/tunnel/stop", async (_req, res) => {
   res.json({ ok: true, ...(await tunnel.stop()) });
 });
 
-// ---- Shares ----
 
-// POST /share {project_id, hours?} — host creates a PIN (tunnel auto-starts)
+
+
 shareRouter.post("/", async (req, res) => {
   const parsed = z.object({ project_id: z.string().uuid(), hours: z.number().min(1).max(72).optional() }).safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error);
@@ -57,22 +57,22 @@ shareRouter.post("/", async (req, res) => {
   });
 });
 
-// GET /share/list?project_id= — host lists active shares (no PINs).
-// (Kept off the bare /share root so the built web Share page can be served there.)
+
+
 shareRouter.get("/list", async (req, res) => {
   const { project_id } = req.query as { project_id?: string };
   if (!project_id) return res.status(400).json({ error: "project_id required" });
   res.json(await listShares(project_id));
 });
 
-// DELETE /share/:id — host revokes
+
 shareRouter.delete("/:id", async (req, res) => {
   await revokeShare(String((req.params as any).id ?? ""), (req as any).actor ?? "host");
   res.json({ ok: true });
 });
 
-// Public: a guest with a PIN has no token yet, so this route is mounted before
-// requireAuth. Everything else in this router is host-only.
+
+
 export async function joinHandler(req: any, res: any) {
   const ip = String(req.headers["cf-connecting-ip"] ?? req.ip ?? req.socket?.remoteAddress ?? "unknown");
   const gate = await checkAttempts(ip);

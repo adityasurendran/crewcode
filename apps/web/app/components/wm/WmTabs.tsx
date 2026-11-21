@@ -1,5 +1,5 @@
-// Adapted from Watermelon UI "discrete-tabs" (MIT), simplified:
-// sliding active pill via layoutId. No timers, no shine — just the morph.
+
+
 "use client";
 import { motion } from "motion/react";
 

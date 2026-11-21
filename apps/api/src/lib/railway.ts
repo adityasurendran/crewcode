@@ -1,6 +1,6 @@
-// Railway preview deploy — real provider via RAILWAY_TOKEN (env://RAILWAY_TOKEN).
-// Creates ephemeral environment per task branch, returns live URL.
-// Prod: deploy main branch to a Railway service after human approve.
+
+
+
 import { query } from "./db.js";
 import { audit } from "./audit.js";
 import { resolveSecret } from "./vault.js";
@@ -25,19 +25,19 @@ export async function railwayDeployPreview(taskId: string, workdir: string): Pro
   const task = tasks[0];
   const proj = (await query<any>(`select * from projects where id=$1`, [task.project_id]))[0];
 
-  // Resolve RAILWAY_TOKEN via vault pointer if configured, else env.
+  
   let token = process.env.RAILWAY_TOKEN ?? "";
   if (!token && proj?.railway_service_id) {
-    // Phase 1: store vault_ref in api_connections for provider='railway'
+    
   }
   if (!token) throw new Error("RAILWAY_TOKEN missing — set env://RAILWAY_TOKEN or connect railway in /connections");
 
-  // Phase 0 Railway flow:
-  // 1. Find or create project
-  // 2. Trigger redeploy on a preview service with env var CREW_TASK_BRANCH=task.branch
-  // 3. Poll for deployment status until live
-  // Full GraphQL flow:
-  // mutation { deploy(input: { environmentId, serviceId, source: { repo: ..., branch } }) { id } }
+  
+  
+  
+  
+  
+  
   const branch = task.branch;
   const serviceId = proj?.railway_service_id ?? "";
   if (!serviceId) {
@@ -65,7 +65,7 @@ export async function railwayDeployPreview(taskId: string, workdir: string): Pro
 }
 
 export async function railwayPromote(projectId: string, taskId: string, approvedBy: string) {
-  // Phase 1: promote preview env to production railway service.
+  
   await audit(projectId, approvedBy, "prod.railway.promoted", { task_id: taskId, note: "wire main branch deploy in Phase 1" });
   return { ok: true, note: "promote to prod: set Railway service source branch=main" };
 }

@@ -1,7 +1,7 @@
-// Preview deploys — 1 URL per task + 1 prod slot per project.
-// Phase 0: local Docker (if available) else stub URL + static artifact.
-// Phase 1: Railway/Fly/Cloudflare Containers via provider tokens in Vault.
-// Approve gate: only `main` green + explicit approve promotes to prod.
+
+
+
+
 import { query } from "./db.js";
 import { audit } from "./audit.js";
 
@@ -72,9 +72,9 @@ export async function deployPreview(taskId: string, workdir: string): Promise<{ 
 }
 
 export async function promoteToProd(projectId: string, taskId: string, approvedBy: string) {
-  // Human approve gate — required for prod. No auto-prod from agents.
-  // Records the promotion as an artifact so the deploy history is complete;
-  // the live prod deploy itself is provider-specific (Railway/Fly).
+  
+  
+  
   await query(`insert into artifacts (task_id, kind, uri, meta) values ($1,'prod_promotion','main',$2)`, [
     taskId,
     JSON.stringify({ project_id: projectId, approved_by: approvedBy }),

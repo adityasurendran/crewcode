@@ -4,7 +4,7 @@ import { fullStatus, installTool, installAllMissing, ensureBinDir, BIN_DIR } fro
 
 export const setupRouter = Router();
 
-// GET /setup/status — checklist of everything CrewCode needs
+
 setupRouter.get("/status", async (_req, res) => {
   try {
     res.json({ bin_dir: BIN_DIR, tools: await fullStatus(), autopilot: process.env.AUTOPILOT !== "0" });
@@ -13,7 +13,7 @@ setupRouter.get("/status", async (_req, res) => {
   }
 });
 
-// POST /setup/install {tool} — install one tool by itself
+
 setupRouter.post("/install", async (req, res) => {
   const parsed = z.object({ tool: z.enum(["node", "cloudflared", "opencode", "git", "docker"]) }).safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error);
@@ -21,7 +21,7 @@ setupRouter.post("/install", async (req, res) => {
   res.json({ tool: parsed.data.tool, ...(await installTool(parsed.data.tool)) });
 });
 
-// POST /setup/install-all — install everything missing that can be automatic
+
 setupRouter.post("/install-all", async (_req, res) => {
   ensureBinDir();
   const results = await installAllMissing();
@@ -29,7 +29,7 @@ setupRouter.post("/install-all", async (_req, res) => {
   res.json({ results, tools: await fs() });
 });
 
-// POST /setup/db-up — one click: docker compose up -d postgres redis
+
 setupRouter.post("/db-up", async (_req, res) => {
   const { execSync } = await import("node:child_process");
   try {

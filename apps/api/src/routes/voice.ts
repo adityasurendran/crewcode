@@ -1,4 +1,4 @@
-// Voice endpoints — ElevenLabs behind the control plane. Key never in client.
+
 import { Router } from "express";
 import { z } from "zod";
 import { voiceStatus, saveVoiceSettings, clearVoiceSettings, listVoices, verifyVoice, tts, stt } from "../lib/voice.js";

@@ -1,6 +1,6 @@
-// OpenCode session runner — real SDK sessions in the task workdir.
-// Spawns/reuses opencode serve, creates a session per task, streams objective,
-// returns structured completion. Falls back to `opencode run` if SDK/session fails.
+
+
+
 import { ensureOpenCodeServer, opencodeServerUrl } from "./opencode-server.js";
 import { opencodeCmd } from "./opencode-bin.js";
 
@@ -15,7 +15,7 @@ export async function runOpenCodeSession(workdir: string, objective: string, sys
     if (typeof create !== "function") return { ok: false, note: "sdk create not found" };
     const client = create({ baseUrl: base });
 
-    // Create a session rooted in the task workdir.
+    
     const session = await client.session.create({ directory: workdir });
     const sessionId = session?.id ?? session?.sessionID;
     if (!sessionId) return { ok: false, note: "no session id" };
@@ -32,7 +32,7 @@ export async function runOpenCodeSession(workdir: string, objective: string, sys
   }
 }
 
-// Shell fallback — used when SDK session unavailable.
+
 export async function runOpenCodeShell(workdir: string, objective: string): Promise<SessionResult> {
   const { execSync } = await import("node:child_process");
   try {

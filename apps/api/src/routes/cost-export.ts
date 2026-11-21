@@ -5,7 +5,7 @@ import { costFor } from "../lib/billing.js";
 
 export const costExportRouter = Router();
 
-// GET /cost-export?org_id= — full cost breakdown for invoices / finance
+
 costExportRouter.get("/", async (req, res) => {
   const { org_id } = req.query as { org_id?: string };
   if (!org_id) return res.status(400).json({ error: "org_id required" });
@@ -33,7 +33,7 @@ costExportRouter.get("/", async (req, res) => {
   res.json({ org_id, generated_at: new Date().toISOString(), totals, lines });
 });
 
-// PATCH /tasks/:id/assign {owner_id} — reassign task to another teammate
+
 costExportRouter.patch("/tasks/:id/assign", async (req, res) => {
   const { owner_id } = req.body ?? {};
   if (!owner_id) return res.status(400).json({ error: "owner_id required" });

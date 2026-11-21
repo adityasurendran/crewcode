@@ -1,9 +1,9 @@
-// Vercel preview deploys — trigger via Deploy Hook, resolve URL via API.
-// Needs VERCEL_TOKEN (env); project settings: vercel_project_id,
-// vercel_team_id (optional), vercel_deploy_hook_url.
-// Hook: Vercel → Project → Settings → Git → Deploy Hooks. The hook builds the
-// connected git repo, so this fits GitHub-imported projects; local-only repos
-// get a clear error telling exactly what to set.
+
+
+
+
+
+
 import { query } from "./db.js";
 import { audit } from "./audit.js";
 

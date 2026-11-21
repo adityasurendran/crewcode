@@ -1,16 +1,16 @@
-// Autopilot — the AI manages the app so the human doesn't have to.
-// Runs as a 60s interval inside the API process (AUTOPILOT=0 disables it).
-// Each sweep:
-//   stuck (running/testing, silent >10m) -> requeue to merge (max 3)
-//   blocked (budget ok, workdir alive)    -> rescue via merge queue (max 2)
-//   merged without preview                -> deployPreview (stub/local: free)
-//   terminal worktrees older than 1h      -> delete (janitor)
-// Guardrails: never touches budget-blocked tasks, never auto-promotes to
-// prod, never spends on tasks older than 24h, every action is capped.
+
+
+
+
+
+
+
+
+
 import { query } from "./db.js";
 import { existsSync, rmSync } from "node:fs";
-// queue + budgets are imported lazily inside sweep() — their module-level
-// connections would otherwise keep unit-test processes alive.
+
+
 
 const STUCK_MIN = 10;
 const MAX_REQUEUES = 3;
@@ -27,14 +27,14 @@ export type PlanInput = {
   workdirExists: boolean;
   overBudget: boolean;
   hasPreview: boolean;
-  // Hours since the janitor last failed on this worktree (null = never).
-  // Locks release when instances exit, so failures back off instead of spamming.
+  
+  
   lastCleanupFailAgeHrs: number | null;
 };
 
 export type PlanAction = "requeue" | "rescue" | "preview" | "cleanup";
 
-// Pure decision table — unit-tested, no I/O.
+
 export function planAction(s: PlanInput): PlanAction[] {
   const out: PlanAction[] = [];
   const terminal = s.status === "merged" || s.status === "blocked";
@@ -44,9 +44,9 @@ export function planAction(s: PlanInput): PlanAction[] {
       out.push("requeue");
     if (s.status === "blocked" && !s.overBudget && s.workdirExists && s.rescues < MAX_RESCUES) out.push("rescue");
   }
-  // Janitor also handles old tasks — but only removes the worktree dir, and
-  // never in the same sweep as a preview (which may need the files).
-  // A recent cleanup failure means "still locked" — back off for 6h.
+  
+  
+  
   const cleanupReady = s.lastCleanupFailAgeHrs == null || s.lastCleanupFailAgeHrs > 6;
   if (terminal && s.ageHrs > JANITOR_HRS && s.workdirExists && cleanupReady && out.length === 0) out.push("cleanup");
   return out;

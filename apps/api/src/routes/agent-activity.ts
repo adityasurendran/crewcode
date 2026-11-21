@@ -4,8 +4,8 @@ import { queryWithOrg } from "../lib/db-rls.js";
 
 export const agentActivityRouter = Router();
 
-// GET /agent-activity?project_id=&org_id=&owner_id=&limit=
-// Returns what each agent is doing right now: current task, status, last event, tokens used.
+
+
 agentActivityRouter.get("/", async (req, res) => {
   const { project_id, org_id, owner_id, limit } = req.query as Record<string, string>;
   const n = Math.min(Number(limit) || 50, 200);

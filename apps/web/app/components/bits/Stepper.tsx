@@ -1,5 +1,5 @@
-// Vendored from DavidHDev/react-bits (MIT): Stepper, recolored to CrewCode indigo.
-// https://github.com/DavidHDev/react-bits/blob/main/src/ts-default/Components/Stepper
+
+
 'use client';
 
 import { AnimatePresence, motion, type Variants } from 'motion/react';

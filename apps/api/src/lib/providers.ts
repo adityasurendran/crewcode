@@ -1,6 +1,6 @@
-// Real provider calls — server-side only. Secrets resolved here, never logged.
-// Stripe: checkout sessions. Supabase: PostgREST + Auth + Storage via service key.
-// (opencode-go is the only MODEL backend — see lib/opencode-complete.ts.)
+
+
+
 import { resolveSecret, redactSecrets } from "./vault.js";
 
 export async function stripeCreateCheckout(vaultRef: string, args: any) {
@@ -26,8 +26,8 @@ export async function stripeCreateCheckout(vaultRef: string, args: any) {
 }
 
 export async function supabaseQuery(vaultRef: string, args: { url: string; sql?: string; table?: string; select?: string; filter?: string }) {
-  // Two modes: (a) PostgREST read via service key (preferred), (b) SQL stub.
-  // Agents send {url, table, select, filter} — never raw keys.
+  
+  
   const key = await resolveSecret(vaultRef);
   if (!args?.url || !args?.table) return { stub: true, note: "send {url, table, select} for live read" };
   const u = `${args.url.replace(/\/$/, "")}/rest/v1/${args.table}?select=${encodeURIComponent(args.select ?? "*")}${args.filter ? `&${args.filter}` : ""}`;
@@ -69,7 +69,7 @@ export async function supabaseUpload(
   checkStorageRef(bucket, path);
   if (!url) throw new Error("supabase url required");
   if (!content_base64) throw new Error("content_base64 required");
-  if (!bucket || !path) throw new Error("bucket + path required"); // narrowing (validated above)
+  if (!bucket || !path) throw new Error("bucket + path required"); 
   let bytes: Buffer;
   try {
     bytes = Buffer.from(content_base64, "base64");
@@ -91,7 +91,7 @@ export async function supabaseUpload(
   return { bucket, path, size: bytes.length };
 }
 
-// Shared storage validation (buckets are identifier-like, paths never escape).
+
 export function checkStorageRef(bucket?: string, path?: string): void {
   if (!bucket || !/^[A-Za-z0-9._-]+$/.test(bucket)) throw new Error("invalid bucket name");
   if (path != null) {
@@ -102,8 +102,8 @@ export function checkStorageRef(bucket?: string, path?: string): void {
 
 export type SupabaseWriteOp = "insert" | "update" | "delete";
 
-// Pure spec builder — unit-tested. Updates/deletes REQUIRE a PostgREST filter
-// (e.g. "id=eq.1"); unscoped writes are refused rather than guessed.
+
+
 export function writeSpec(
   table: string,
   op: SupabaseWriteOp,
@@ -184,9 +184,9 @@ export async function supabaseRemove(vaultRef: string, args: { url?: string; buc
   return { bucket, removed };
 }
 
-// ---- Media: AI image generation (keyless public endpoint) ----
 
-// Safe filename for generated art: slug + image extension only.
+
+
 export function mediaFilename(name: string, ext?: string): string {
   const slug = String(name ?? "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40) || "image";
   const e = (ext ?? "jpg").toLowerCase().replace(/^\./, "");
@@ -194,8 +194,8 @@ export function mediaFilename(name: string, ext?: string): string {
   return `${slug}.${safeExt}`;
 }
 
-// Generate an illustration/logo/hero image and save it into the task's
-// public/generated/ dir so the app can serve it. No key needed.
+
+
 export async function mediaGenerateImage(
   _vaultRef: string,
   args: { task_id?: string; prompt?: string; filename?: string; width?: number; height?: number }
@@ -221,7 +221,7 @@ export async function mediaGenerateImage(
   return { path: `public/generated/${file}`, url_path: `/generated/${file}`, size: buf.length };
 }
 
-// ---- Email: Resend (per-project key, never shown) ----
+
 
 export function checkEmailList(to: unknown): string[] {
   const list = Array.isArray(to) ? to : [to];
@@ -255,10 +255,10 @@ export async function emailSend(
   return { id: j.id ?? "sent" };
 }
 
-// ---- Web: proxied fetch + search (agents have no direct browsing) ----
 
-// Hosts an agent must never reach through the proxy (SSRF guard). DNS results
-// are checked too — a domain resolving to one of these is refused.
+
+
+
 export function isBlockedHost(host: string): boolean {
   const h = String(host ?? "").toLowerCase().replace(/\.$/, "").replace(/^\[(.*)\]$/, "$1");
   if (!h || h === "localhost") return true;
@@ -305,7 +305,7 @@ export async function webFetchText(rawUrl: string): Promise<{ url: string; title
   }
   if (u.protocol !== "https:" && u.protocol !== "http:") throw new Error("only http(s) URLs allowed");
   if (isBlockedHost(u.hostname)) throw new Error("that address is not allowed");
-  // DNS check: refuse domains that resolve to internal addresses.
+  
   try {
     const { lookup } = await import("node:dns/promises");
     const addrs = await lookup(u.hostname, { all: true });
@@ -318,7 +318,7 @@ export async function webFetchText(rawUrl: string): Promise<{ url: string; title
     headers: { "user-agent": "CrewCode/1.0 (research fetch)", accept: "text/html,text/plain" },
   });
   if (!res.ok) throw new Error(`fetch ${res.status}`);
-  // Redirects can hop to internal hosts — check where we landed.
+  
   try {
     if (isBlockedHost(new URL(res.url).hostname)) throw new Error("that address is not allowed");
   } catch (e: any) {
@@ -334,7 +334,7 @@ export async function webFetchText(rawUrl: string): Promise<{ url: string; title
   return { url: res.url || u.toString(), title: "", text: buf.toString("utf8").slice(0, 8000) };
 }
 
-// Best-effort DuckDuckGo HTML results (keyless). Pure parser — unit-tested.
+
 export function parseDdgResults(html: string): { title: string; url: string }[] {
   const out: { title: string; url: string }[] = [];
   const re = /class="result__a"[^>]*href="([^"]+)"[^>]*>([\s\S]{0,300}?)<\/a>/gi;
@@ -362,9 +362,9 @@ export async function webSearch(rawQuery: string): Promise<{ results: { title: s
   return { results: parseDdgResults(await res.text()) };
 }
 
-// NOTE: direct OpenAI completions were removed — opencode-go is the only model
-// backend (see lib/opencode-complete.ts). This module keeps capability calls
-// for Stripe / Supabase, where the vault still resolves project credentials.
+
+
+
 export function safeErr(e: any): string {
   return redactSecrets(String(e?.message ?? e)).slice(0, 1000);
 }

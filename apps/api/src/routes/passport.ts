@@ -1,6 +1,6 @@
-// Creator Passport — evidence of a person's real contributions in a project.
-// Derived honestly from tasks, merges and messages. AI-assisted work is labelled
-// explicitly; nothing is described as independently certified.
+
+
+
 import { Router } from "express";
 import { query } from "../lib/db.js";
 
@@ -69,7 +69,7 @@ export async function buildPassport(projectId: string, ownerId: string) {
     stats: { tasks: tasks.length, merged, messages, files },
     skills: [...skills].map((name) => ({
       name,
-      // evidence-based signal, not a grade
+      
       evidence:
         name === "Programming" || name === "Problem solving"
           ? merged

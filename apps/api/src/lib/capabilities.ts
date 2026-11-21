@@ -1,7 +1,7 @@
-// Capability MCP proxy — the ONLY way agents touch shared APIs.
-// Agent calls e.g. POST /capabilities/stripe.create_checkout {task_id, args}
-// Proxy: loads task scopes + project api_connections, resolves secret server-side,
-// calls provider, redacts logs, audits, enforces budget. Raw key never reaches agent.
+
+
+
+
 import { Router } from "express";
 import { query } from "./db.js";
 import { audit } from "./audit.js";
@@ -11,7 +11,7 @@ import { stripeCreateCheckout, supabaseQuery, supabaseSignup, supabaseUpload, su
 
 export const capsRouter = Router();
 
-// Estimated token cost per capability call (LLM + tool). Tune per model.
+
 const COST: Record<string, number> = {
   "db.query_scoped": 500,
   "db.write": 1000,
@@ -46,8 +46,8 @@ capsRouter.post("/:tool", async (req, res) => {
 
     const { task, conns } = await loadScope(task_id);
     const allow: string[] = JSON.parse(typeof task.allowlist === "string" ? task.allowlist : JSON.stringify(task.allowlist ?? []));
-    // allowlist entries like "db.users:read", "stripe:write", or capability names
-    const toolRoot = tool.split(".")[0]; // db | auth | stripe | storage | llm
+    
+    const toolRoot = tool.split(".")[0]; 
     const permitted =
       allow.length === 0 ||
       allow.some((a) => a === tool || a.startsWith(toolRoot) || a === `${toolRoot}:*`);
@@ -85,8 +85,8 @@ capsRouter.post("/:tool", async (req, res) => {
         break;
       }
       case "llm.complete": {
-        // One model backend: the crew's mandated opencode-go model. No connection needed.
-        // Runs in an empty temp dir so the agent cannot touch project files.
+        
+        
         try {
           const { opencodeComplete } = await import("./opencode-complete.js");
           const { tmpdir } = await import("node:os");
@@ -147,7 +147,7 @@ capsRouter.post("/:tool", async (req, res) => {
         break;
       }
       case "media.generate_image": {
-        // Keyless — art lands in the task's own public/generated/ dir.
+        
         try {
           result = await mediaGenerateImage("", { ...(args ?? {}), task_id });
         } catch (e: any) {
@@ -156,7 +156,7 @@ capsRouter.post("/:tool", async (req, res) => {
         break;
       }
       case "email.send": {
-        // Real people get real email — :write scope required.
+        
         if (!allow.some((a) => a.includes(":write") || a.includes("email"))) {
           return res.status(403).json({ error: "sending email requires :write scope" });
         }

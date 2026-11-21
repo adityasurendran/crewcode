@@ -4,7 +4,7 @@ import { query } from "../lib/db.js";
 
 export const agentsRouter = Router();
 
-// GET /agents/instances — every teammate's persistent OpenCode instance + liveness
+
 agentsRouter.get("/instances", async (_req, res) => {
   try {
     res.json({ instances: await listInstances() });
@@ -13,7 +13,7 @@ agentsRouter.get("/instances", async (_req, res) => {
   }
 });
 
-// POST /agents/instances/ensure {owner_id} — warm up (or reuse) an instance
+
 agentsRouter.post("/instances/ensure", async (req, res) => {
   const { owner_id, role } = req.body ?? {};
   if (!owner_id) return res.status(400).json({ error: "owner_id required" });
@@ -24,7 +24,7 @@ agentsRouter.post("/instances/ensure", async (req, res) => {
   }
 });
 
-// POST /agents/instances/stop {owner_id}
+
 agentsRouter.post("/instances/stop", async (req, res) => {
   const { owner_id } = req.body ?? {};
   if (!owner_id) return res.status(400).json({ error: "owner_id required" });
@@ -32,7 +32,7 @@ agentsRouter.post("/instances/stop", async (req, res) => {
   res.json({ ok: true });
 });
 
-// POST /agents/integrator/run {task_id, instruction?} — drive the central integration agent
+
 agentsRouter.post("/integrator/run", async (req, res) => {
   const { task_id, instruction } = req.body ?? {};
   if (!task_id) return res.status(400).json({ error: "task_id required" });

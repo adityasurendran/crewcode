@@ -11,6 +11,6 @@ export async function audit(projectId: string | null, actor: string, action: str
       JSON.stringify(clean),
     ]);
   } catch {
-    // audit must never break main flow
+    
   }
 }

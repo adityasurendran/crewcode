@@ -1,7 +1,7 @@
-// Agent chat API — "My Agent" natural-language surface.
-// POST /agent/chat {task_id, message} — records user message as event,
-// enqueues follow-up for the owning agent's session, returns ack.
-// The model talks back via events (intent/sync/error), not raw chat dumps.
+
+
+
+
 import { Router } from "express";
 import { z } from "zod";
 import { query } from "../lib/db.js";
@@ -26,13 +26,13 @@ agentRouter.post("/chat", async (req, res) => {
   const task = tasks[0];
   if (task.status === "merged") return res.status(409).json({ error: "task already merged — create a new one" });
 
-  // Record structured user intent, never a chat dump into the integrator.
+  
   await query(`insert into events (task_id, type, payload) values ($1,'user_message',$2)`, [
     task_id,
     JSON.stringify({ actor, message: message.slice(0, 1500) }),
   ]);
 
-  // Enqueue follow-up for the agent worker (same workdir/session).
+  
   await enqueue(QUEUES.agentJobs, {
     taskId: task.id,
     projectId: task.project_id,
@@ -45,7 +45,7 @@ agentRouter.post("/chat", async (req, res) => {
   res.json({ ok: true, task_id, queued: true });
 });
 
-// GET /agent/conversation/:task_id — this agent's task-relevant events only
+
 agentRouter.get("/conversation/:task_id", async (req, res) => {
   const id = String((req.params as any).task_id ?? "");
   const events = await query<any>(

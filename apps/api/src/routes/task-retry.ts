@@ -5,7 +5,7 @@ import { audit } from "../lib/audit.js";
 
 export const taskRetryRouter = Router();
 
-// POST /tasks/:id/retry — re-enqueue a blocked/failed task for the agent
+
 taskRetryRouter.post("/:id/retry", async (req, res) => {
   const id = String((req.params as any).id ?? "");
   const { note } = req.body ?? {};
@@ -29,7 +29,7 @@ taskRetryRouter.post("/:id/retry", async (req, res) => {
   res.json({ ok: true, task_id: id, status: "running" });
 });
 
-// POST /tasks/:id/cancel — cancel a running/queued task
+
 taskRetryRouter.post("/:id/cancel", async (req, res) => {
   const id = String((req.params as any).id ?? "");
   const tasks = await query<any>(`select * from tasks where id=$1`, [id]);

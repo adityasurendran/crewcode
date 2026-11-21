@@ -1,4 +1,4 @@
-// Youth safety — reporting and data controls. Deliberately simple and auditable.
+
 import { Router } from "express";
 import { z } from "zod";
 import { audit } from "../lib/audit.js";

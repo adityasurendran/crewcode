@@ -1,6 +1,6 @@
-// Chat threads — the primary interface. A message runs the owner's agent and
-// auto-merges the result. "Tasks" still exist underneath (branches + merge) but
-// are never surfaced to the user.
+
+
+
 import { Router } from "express";
 import { z } from "zod";
 import { query } from "../lib/db.js";
@@ -10,14 +10,14 @@ import { subscribe, publishStatus } from "../lib/stream-bus.js";
 
 export const threadsRouter = Router();
 
-// Guests build too — but their identity is derived from their token, so a guest
-// can't post as the host (or as another guest).
+
+
 function effectiveOwner(req: any, requested: string | undefined): string {
   if (req?.guest && req?.guestId) return `guest-${String(req.guestId).slice(0, 16)}`;
   return String(requested ?? "").trim();
 }
 
-// GET /threads?project_id=&owner_id= — the thread + full conversation
+
 threadsRouter.get("/", async (req, res) => {
   const { project_id, owner_id } = req.query as { project_id?: string; owner_id?: string };
   const owner = effectiveOwner(req, owner_id);
@@ -30,7 +30,7 @@ threadsRouter.get("/", async (req, res) => {
   res.json({ thread, messages: await threadMessages(thread.id), latest_task: latest });
 });
 
-// POST /threads/message {project_id, owner_id, message} — send → agent builds → merges
+
 threadsRouter.post("/message", async (req, res) => {
   const parsed = z
     .object({
@@ -49,8 +49,8 @@ threadsRouter.post("/message", async (req, res) => {
   const thread = await ensureThread(project_id, owner_id);
   const userMsg = await postMessage(thread.id, "user", message, { owner: owner_id, mode });
 
-  // One persistent branch + worktree per person — every message builds on the
-  // last, and the agent's session stays valid. (No per-message task branches.)
+  
+  
   let branch: string;
   let workdir: string;
   try {
@@ -60,7 +60,7 @@ threadsRouter.post("/message", async (req, res) => {
     return res.status(500).json({ error: "could not start the agent" });
   }
 
-  // Hidden work unit on the person's own branch (the user never sees tasks).
+  
   const rows = await query(
     `insert into tasks (project_id, owner_id, objective, status, branch, allowlist, thread_id, mode)
      values ($1,$2,$3,'queued',$4,'[]',$5,$6) returning *`,
@@ -83,7 +83,7 @@ threadsRouter.post("/message", async (req, res) => {
     projectId: project_id,
     objective: agentObjective,
     workdir,
-    sessionKey: thread.id, // keep one continuous agent session per person
+    sessionKey: thread.id, 
     threadId: thread.id,
     ownerId: owner_id,
   });
@@ -91,13 +91,13 @@ threadsRouter.post("/message", async (req, res) => {
     task.id,
     JSON.stringify({ objective: message, via: "chat" }),
   ]);
-  // Immediate feedback so the chat shows activity before the worker picks it up.
+  
   await publishStatus(thread.id, "thinking");
 
   res.json({ ok: true, thread_id: thread.id, message: userMsg, task_id: task.id });
 });
 
-// GET /threads/:id/stream — SSE of new messages (agent replies arrive here)
+
 threadsRouter.get("/:id/stream", async (req, res) => {
   const id = String((req.params as any).id ?? "");
   res.setHeader("Content-Type", "text/event-stream");
@@ -105,7 +105,7 @@ threadsRouter.get("/:id/stream", async (req, res) => {
   res.setHeader("Connection", "keep-alive");
   (res as any).flushHeaders?.();
 
-  // Live deltas + status from the worker (Redis pub/sub) → SSE events.
+  
   const unsub = subscribe(id, (p) => {
     if (p?.stage) res.write(`event: status\ndata: ${JSON.stringify({ stage: p.stage })}\n\n`);
     else if (typeof p?.text === "string") res.write(`event: delta\ndata: ${JSON.stringify({ text: p.text })}\n\n`);

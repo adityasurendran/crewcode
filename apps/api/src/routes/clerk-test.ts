@@ -4,7 +4,7 @@ import { z } from "zod";
 
 export const clerkTestRouter = Router();
 
-// POST /auth/clerk/test {token} — verify a JWT against configured JWKS (live test)
+
 clerkTestRouter.post("/test", async (req, res) => {
   const parsed = z.object({ token: z.string().min(20) }).safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error);
@@ -13,7 +13,7 @@ clerkTestRouter.post("/test", async (req, res) => {
   res.json({ ok: true, claims });
 });
 
-// GET /auth/clerk/config — current JWKS config status
+
 clerkTestRouter.get("/config", (_req, res) => {
   res.json({
     verifier: process.env.CLERK_JWT_VERIFIER ?? "dev",

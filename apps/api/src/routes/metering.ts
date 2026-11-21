@@ -1,6 +1,6 @@
-// Stripe metering webhook — usage_report events credit projects.
-// POST /stripe/metering {project_id, tokens, model} — internal, called by workers after runs.
-// POST /stripe/metering/ingest — Stripe meter event API proxy (Phase 1).
+
+
+
 import { Router } from "express";
 import { z } from "zod";
 import { query } from "../lib/db.js";
@@ -10,7 +10,7 @@ import { verifyStripeSignature } from "./stripe-webhook.js";
 
 export const meteringRouter = Router();
 
-// Internal usage report — workers call after each agent run.
+
 const Usage = z.object({
   project_id: z.string().uuid(),
   task_id: z.string().uuid().optional(),
@@ -25,7 +25,7 @@ meteringRouter.post("/", async (req, res) => {
   const { project_id, task_id, tokens, model, cost_usd } = parsed.data;
   const cost = cost_usd ?? (tokens / 1000) * 0.002;
 
-  // Deduct from project credits if present; otherwise track as spend.
+  
   const rows = await query<any>(`select * from projects where id=$1`, [project_id]);
   if (!rows.length) return res.status(404).json({ error: "project not found" });
   const proj = rows[0];
@@ -43,7 +43,7 @@ meteringRouter.post("/", async (req, res) => {
   res.json({ ok: true, cost_usd: cost, remaining_credits: Math.max(remaining, 0) });
 });
 
-// Stripe meter event ingest — verify signature, map to project credits via customer id.
+
 meteringRouter.post("/ingest", raw({ type: "application/json" }), async (req, res) => {
   const secret = process.env.STRIPE_WEBHOOK_SECRET;
   const sig = (req.headers["stripe-signature"] as string) ?? "";
@@ -58,8 +58,8 @@ meteringRouter.post("/ingest", raw({ type: "application/json" }), async (req, re
     return res.status(400).json({ error: "bad json" });
   }
 
-  // Stripe meter events: event.type starts with "stripe_meter_event."
-  // Phase 1: map event.payload.customer + usage to project credits via stripe_customer_id.
+  
+  
   const customerId = event?.payload?.customer ?? event?.data?.object?.customer;
   if (customerId) {
     const projs = await query<any>(`select id from projects where stripe_customer_id=$1`, [customerId]);

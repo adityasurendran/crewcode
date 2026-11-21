@@ -17,7 +17,7 @@ function slug(s: string) {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 32);
 }
 
-// POST /tasks — create task branch + sandbox + enqueue agent job
+
 tasksRouter.post("/", async (req, res) => {
   const parsed = CreateTask.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error);
@@ -34,7 +34,7 @@ tasksRouter.post("/", async (req, res) => {
   const sandbox = await createSandbox(project_id, task.id, branch);
   await query(`update tasks set sandbox_id=$2, status='running' where id=$1`, [task.id, sandbox.id]);
 
-  // For E2B sandboxes, also clone the repo into the sandbox now.
+  
   if (sandbox.id.startsWith("e2b-")) {
     try {
       const { e2bCreateAndClone } = await import("../lib/e2b-deploy.js");
@@ -56,7 +56,7 @@ tasksRouter.post("/", async (req, res) => {
   res.json({ ...task, workdir: sandbox.workdir });
 });
 
-// GET /tasks?project_id= — team board feed
+
 tasksRouter.get("/", async (req, res) => {
   const { project_id } = req.query;
   const rows = project_id
@@ -65,7 +65,7 @@ tasksRouter.get("/", async (req, res) => {
   res.json(rows);
 });
 
-// GET /tasks?org_id= — tenant-scoped list via RLS
+
 tasksRouter.get("/by-org", async (req, res) => {
   const { org_id } = req.query as { org_id?: string };
   if (!org_id) return res.status(400).json({ error: "org_id required" });
@@ -79,7 +79,7 @@ tasksRouter.get("/by-org", async (req, res) => {
   );
 });
 
-// POST /tasks/:id/events — workers report structured state (never raw chat)
+
 tasksRouter.post("/:id/events", async (req, res) => {
   const { type, payload } = req.body ?? {};
   if (!type) return res.status(400).json({ error: "type required" });
@@ -91,7 +91,7 @@ tasksRouter.post("/:id/events", async (req, res) => {
   res.json({ ok: true });
 });
 
-// POST /tasks/:id/done — enqueue for integration
+
 tasksRouter.post("/:id/done", async (req, res) => {
   await query(`update tasks set status='testing' where id=$1`, [req.params.id]);
   await enqueue(QUEUES.mergeQueue, { taskId: req.params.id });

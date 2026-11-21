@@ -1,6 +1,6 @@
-// Voice provider abstraction — ElevenLabs, server-side only.
-// Key can be set in the app (Settings → Voice), encrypted at rest, with an env
-// fallback. It never reaches the browser. Unconfigured → text-only.
+
+
+
 import { query } from "./db.js";
 import { decryptSecret, encryptSecret, maskKey } from "./secrets.js";
 
@@ -46,7 +46,7 @@ export type VoiceOption = { id: string; name: string; category?: string };
 
 let voicesCache: { key: string; at: number; voices: VoiceOption[] } | null = null;
 
-// The account's own voices, so people pick a name instead of pasting an ID.
+
 export async function listVoices(): Promise<{ ok: boolean; voices?: VoiceOption[]; error?: string }> {
   const { key } = await cfg();
   if (!key) return { ok: false, error: "Add your ElevenLabs key first" };

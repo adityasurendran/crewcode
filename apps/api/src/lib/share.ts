@@ -1,15 +1,15 @@
-// PIN share service — host creates a 6-digit PIN for a project, guests join with it.
-// Security: PINs are 6 digits (1M space) so they MUST be rate-limited + expiring.
-// - PIN stored as sha256(salt + pin); shown once at creation.
-// - Brute-force guard: 5 failed joins / 5 min per IP → 429.
-// - Shares expire (default 8h), are single-project scoped, and revokable.
-// - Guests get a random guest_token (Redis, TTL = share expiry) scoped to that project.
-// - Guests never see vault secrets — capability proxy + audit still enforce everything.
+
+
+
+
+
+
+
 import { createHash, randomBytes, randomInt } from "node:crypto";
 import { query } from "./db.js";
 import { audit } from "./audit.js";
 
-// Lazy Redis (queue.js connects on import — keep this module import-safe for tests).
+
 async function getRedis() {
   return (await import("./queue.js")).redis;
 }
@@ -51,7 +51,7 @@ export async function clearAttempts(ip: string): Promise<void> {
 
 export async function createShare(projectId: string, createdBy: string, tunnelUrl: string, hours?: number) {
   const ttlH = Math.min(Math.max(hours ?? PIN_TTL_HOURS, 1), 72);
-  // Generate a unique PIN (retry on the astronomically unlikely collision).
+  
   let pin = "";
   for (let i = 0; i < 5; i++) {
     pin = generatePin();
@@ -66,7 +66,7 @@ export async function createShare(projectId: string, createdBy: string, tunnelUr
   );
   const share = rows[0];
   await audit(projectId, createdBy, "share.created", { share_id: share.id, expires_at: expiresAt });
-  return { ...share, pin }; // PIN shown ONCE — never stored raw
+  return { ...share, pin }; 
 }
 
 export async function resolveShareByPin(pin: string) {
@@ -81,7 +81,7 @@ export async function resolveShareByPin(pin: string) {
 export async function issueGuestToken(shareId: string, projectId: string, ttlSec: number): Promise<string> {
   const redis = await getRedis();
   const token = `cg_${randomBytes(24).toString("hex")}`;
-  // guest_id gives each join its own identity/thread (and stops impersonation).
+  
   const guest_id = randomBytes(6).toString("hex");
   await redis.set(`crew:guest:${token}`, JSON.stringify({ share_id: shareId, project_id: projectId, guest_id }), "EX", Math.max(ttlSec, 60));
   return token;
@@ -105,7 +105,7 @@ export async function revokeShare(shareId: string, actor: string) {
 }
 
 export async function listShares(projectId: string) {
-  // Never return pin_hash.
+  
   return query<any>(
     `select id, project_id, tunnel_url, expires_at, revoked, created_by, created_at from shares where project_id=$1 order by created_at desc limit 20`,
     [projectId]

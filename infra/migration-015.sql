@@ -1,5 +1,5 @@
--- Chat-first model: per-teammate threads, messages, and a shared live notes doc.
--- Tasks remain internal execution units (hidden from users); thread_id links them.
+
+
 
 create table if not exists threads (
   id uuid primary key default gen_random_uuid(),

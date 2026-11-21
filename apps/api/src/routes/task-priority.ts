@@ -4,7 +4,7 @@ import { query } from "../lib/db.js";
 
 export const taskPriorityRouter = Router();
 
-// PATCH /tasks/:id/priority {priority}
+
 taskPriorityRouter.patch("/:id/priority", async (req, res) => {
   const parsed = z.object({ priority: z.number().int().min(1).max(5) }).safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error);
@@ -12,7 +12,7 @@ taskPriorityRouter.patch("/:id/priority", async (req, res) => {
   res.json({ ok: true, priority: parsed.data.priority });
 });
 
-// GET /tasks/queue?project_id= — priority-ordered task queue
+
 taskPriorityRouter.get("/queue", async (req, res) => {
   const { project_id } = req.query as { project_id?: string };
   if (project_id) {

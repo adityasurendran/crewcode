@@ -5,7 +5,7 @@ import { audit } from "../lib/audit.js";
 
 export const notifySettingsRouter = Router();
 
-// GET /notify-settings?org_id= — per-org notification config
+
 notifySettingsRouter.get("/", async (req, res) => {
   const { org_id } = req.query as { org_id?: string };
   if (!org_id) return res.status(400).json({ error: "org_id required" });
@@ -13,7 +13,7 @@ notifySettingsRouter.get("/", async (req, res) => {
   res.json(rows[0] ?? { org_id, slack_webhook_url: "", email_on_blocked: true, email_on_merged: true });
 });
 
-// POST /notify-settings {org_id, slack_webhook_url, email_on_blocked, email_on_merged}
+
 notifySettingsRouter.post("/", async (req, res) => {
   const parsed = z.object({
     org_id: z.string().uuid(),
@@ -29,7 +29,7 @@ notifySettingsRouter.post("/", async (req, res) => {
      on conflict (org_id) do update set slack_webhook_url=$2, email_on_blocked=$3, email_on_merged=$4`,
     [org_id, slack_webhook_url, email_on_blocked, email_on_merged]
   ).catch(() => {
-    // table may not exist yet — migration 008
+    
   });
   await audit(org_id, "user", "notify.settings.updated", { slack: !!slack_webhook_url, blocked: email_on_blocked, merged: email_on_merged });
   res.json({ ok: true });

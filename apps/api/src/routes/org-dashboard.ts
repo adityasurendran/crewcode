@@ -5,7 +5,7 @@ import { costFor } from "../lib/billing.js";
 
 export const orgDashboardRouter = Router();
 
-// GET /org-dashboard?org_id= — org-level summary across all projects
+
 orgDashboardRouter.get("/", async (req, res) => {
   const { org_id } = req.query as { org_id?: string };
   if (!org_id) return res.status(400).json({ error: "org_id required" });

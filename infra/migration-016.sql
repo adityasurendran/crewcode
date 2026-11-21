@@ -1,4 +1,4 @@
--- Crew roles/experience per project, and agent interaction mode per turn.
+
 create table if not exists crew_members (
   project_id uuid not null,
   owner_id text not null,

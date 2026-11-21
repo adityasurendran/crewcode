@@ -1,5 +1,5 @@
-// Railway deploy improvements — create/trigger deployments with proper env vars.
-// Uses RAILWAY_TOKEN; service IDs come from project settings (railway_service_id / railway_env_id).
+
+
 import { query } from "./db.js";
 import { audit } from "./audit.js";
 

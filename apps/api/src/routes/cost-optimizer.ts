@@ -6,12 +6,12 @@ import { audit } from "../lib/audit.js";
 
 export const costOptimizerRouter = Router();
 
-// GET /cost-optimizer/tiers — model tier table
+
 costOptimizerRouter.get("/tiers", (_req, res) => {
   res.json({ tiers: TIER_MODEL, costs_per_1k: TIER_COST_PER_1K });
 });
 
-// GET /cost-optimizer/route?kind= — route a task kind to a model tier
+
 costOptimizerRouter.get("/route", (req, res) => {
   const { kind } = req.query as { kind?: string };
   if (!kind) return res.status(400).json({ error: "kind required" });
@@ -19,7 +19,7 @@ costOptimizerRouter.get("/route", (req, res) => {
   res.json({ kind, tier: r.tier, model: r.model, cost_per_1k: TIER_COST_PER_1K[r.tier] });
 });
 
-// PATCH /cost-optimizer/mapping {kind, tier} — override tier for a task kind (per-project)
+
 costOptimizerRouter.patch("/mapping", async (req, res) => {
   const parsed = z.object({ project_id: z.string().uuid(), kind: z.string().min(1), tier: z.enum(["tiny", "cheap", "standard", "heavy", "frontier"]) }).safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error);
@@ -36,7 +36,7 @@ costOptimizerRouter.patch("/mapping", async (req, res) => {
   res.json({ ok: true, kind, tier, model: TIER_MODEL[tier] });
 });
 
-// GET /cost-optimizer/mapping?project_id= — current overrides
+
 costOptimizerRouter.get("/mapping", async (req, res) => {
   const { project_id } = req.query as { project_id?: string };
   if (!project_id) return res.status(400).json({ error: "project_id required" });

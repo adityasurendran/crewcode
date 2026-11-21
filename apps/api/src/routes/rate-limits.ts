@@ -3,7 +3,7 @@ import { query } from "../lib/db.js";
 
 export const rateLimitRouter = Router();
 
-// GET /rate-limits?actor= — current rate limit usage from Redis keys
+
 rateLimitRouter.get("/", async (req, res) => {
   const { actor } = req.query as { actor?: string };
   const { redis } = await import("../lib/queue.js");

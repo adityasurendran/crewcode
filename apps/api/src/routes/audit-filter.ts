@@ -3,7 +3,7 @@ import { query } from "../lib/db.js";
 
 export const auditFilterRouter = Router();
 
-// GET /audit/filter?action=&actor=&from=&to=&project_id=&limit=
+
 auditFilterRouter.get("/", async (req, res) => {
   const { action, actor, from, to, project_id, limit } = req.query as Record<string, string>;
   const n = Math.min(Number(limit) || 100, 500);

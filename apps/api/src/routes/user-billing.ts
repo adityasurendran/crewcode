@@ -6,7 +6,7 @@ import { costFor } from "../lib/billing.js";
 
 export const userBillingRouter = Router();
 
-// GET /user-billing?user_id=&org_id= — cost for one user across projects
+
 userBillingRouter.get("/", async (req, res) => {
   const parsed = z.object({ user_id: z.string().min(1), org_id: z.string().uuid().optional() }).safeParse(req.query);
   if (!parsed.success) return res.status(400).json({ error: "user_id required" });

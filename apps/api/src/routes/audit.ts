@@ -3,7 +3,7 @@ import { query } from "../lib/db.js";
 
 export const auditRouter = Router();
 
-// GET /audit?project_id=&limit= — observability feed. Redacted already at write time.
+
 auditRouter.get("/", async (req, res) => {
   const { project_id, limit } = req.query as { project_id?: string; limit?: string };
   const n = Math.min(Number(limit) || 100, 500);

@@ -1,5 +1,5 @@
-// E2B live deploy — create sandbox, clone repo, run agent, push snapshot back.
-// Uses real @e2b/code-interpreter now that dep is installed.
+
+
 import { query } from "./db.js";
 import { audit } from "./audit.js";
 import { pullFromSandbox } from "./e2b-pull.js";
@@ -24,7 +24,7 @@ export async function e2bCreateAndClone(projectId: string, taskId: string, branc
   const proj = (await query<any>(`select repo_url from projects where id=$1`, [projectId]))[0];
   const url = repoUrl ?? proj?.repo_url ?? "";
   if (url) {
-    // Authenticated clone if GitHub token available.
+    
     let authed = url;
     const token = process.env.GITHUB_TOKEN;
     if (token && url.includes("github.com")) authed = url.replace("https://", `https://x-access-token:${token}@`);
@@ -48,7 +48,7 @@ export async function e2bRunAgent(sandboxId: string, workdir: string, objective:
   }
   const Sbx = E2B.Sandbox ?? E2B.default?.Sandbox;
   const sbx = await Sbx.connect(sandboxId);
-  // Run opencode inside the sandbox (falls back to a marker when it is absent).
+  
   const out = await sbx.commands.run(
     `cd ${workdir} && (command -v opencode >/dev/null && opencode run "${objective.replace(/"/g, "'").replace(/[\r\n\t]+/g, " ").slice(0, 4000)}" || echo "opencode not installed in sandbox")`,
     { timeoutMs: 600_000 }

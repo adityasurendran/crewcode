@@ -3,7 +3,7 @@ import { query } from "../lib/db.js";
 
 export const usageEventsRouter = Router();
 
-// GET /usage-events?task_id=&project_id=&limit= — token usage events for dashboards
+
 usageEventsRouter.get("/", async (req, res) => {
   const { task_id, project_id, limit } = req.query as Record<string, string>;
   const n = Math.min(Number(limit) || 50, 200);

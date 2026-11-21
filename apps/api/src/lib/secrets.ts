@@ -1,5 +1,5 @@
-// Small AES-256-GCM helper so the single provider API key is never stored in plaintext.
-// Master key: CREW_SECRET env, else a generated key file at .crew/secret.key (dev).
+
+
 import { createCipheriv, createDecipheriv, createHash, randomBytes } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 

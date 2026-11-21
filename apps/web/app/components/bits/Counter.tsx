@@ -1,5 +1,5 @@
-// Vendored from DavidHDev/react-bits (MIT): Counter.
-// https://github.com/DavidHDev/react-bits/blob/main/src/ts-default/Components/Counter
+
+
 'use client';
 
 import { MotionValue, motion, useSpring, useTransform } from 'motion/react';

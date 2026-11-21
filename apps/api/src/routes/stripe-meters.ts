@@ -1,6 +1,6 @@
-// Stripe meter event API — creates usage events on Stripe for billing.
-// POST /stripe/meters/events {event_key, stripe_customer_id, value}
-// Uses STRIPE_SECRET_KEY server-side; never exposed to agents.
+
+
+
 import { Router } from "express";
 import { z } from "zod";
 import { resolveSecret } from "../lib/vault.js";
@@ -17,13 +17,13 @@ const MeterEvent = z.object({
   payload: z.record(z.any()).optional(),
 });
 
-// Internal: workers call after usage
+
 stripeMetersRouter.post("/events", async (req, res) => {
   const parsed = MeterEvent.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error);
   const { event_key, stripe_customer_id, value, payload } = parsed.data;
 
-  // Resolve Stripe key via vault (env://STRIPE_SECRET_KEY or doppler ref).
+  
   let key = process.env.STRIPE_SECRET_KEY ?? "";
   if (!key) {
     try {
@@ -49,7 +49,7 @@ stripeMetersRouter.post("/events", async (req, res) => {
   res.json({ ok: true, id: j?.identifier ?? j?.id });
 });
 
-// Stripe webhook ingest for meter events (signature-verified)
+
 stripeMetersRouter.post("/webhook", raw({ type: "application/json" }), async (req, res) => {
   const secret = process.env.STRIPE_WEBHOOK_SECRET;
   const sig = (req.headers["stripe-signature"] as string) ?? "";

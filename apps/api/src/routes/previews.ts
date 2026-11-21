@@ -4,7 +4,7 @@ import { deployPreview, promoteToProd } from "../lib/previews.js";
 
 export const previewsRouter = Router();
 
-// POST /previews {task_id} — build + issue preview URL
+
 previewsRouter.post("/", async (req, res) => {
   const { task_id } = req.body ?? {};
   if (!task_id) return res.status(400).json({ error: "task_id required" });
@@ -17,7 +17,7 @@ previewsRouter.post("/", async (req, res) => {
   }
 });
 
-// GET /previews?task_id= — list preview artifacts
+
 previewsRouter.get("/", async (req, res) => {
   const { task_id } = req.query;
   const rows = task_id
@@ -26,7 +26,7 @@ previewsRouter.get("/", async (req, res) => {
   res.json(rows);
 });
 
-// POST /previews/promote {project_id, task_id, approved_by} — human approve gate
+
 previewsRouter.post("/promote", async (req, res) => {
   const { project_id, task_id, approved_by } = req.body ?? {};
   if (!project_id || !task_id || !approved_by) return res.status(400).json({ error: "project_id + task_id + approved_by required" });

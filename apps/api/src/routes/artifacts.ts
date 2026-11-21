@@ -4,7 +4,7 @@ import { queryWithOrg } from "../lib/db-rls.js";
 
 export const artifactsRouter = Router();
 
-// GET /artifacts?task_id=&org_id=&kind= — tenant-scoped artifacts
+
 artifactsRouter.get("/", async (req, res) => {
   const { task_id, org_id, kind, limit } = req.query as Record<string, string>;
   const n = Math.min(Number(limit) || 50, 200);

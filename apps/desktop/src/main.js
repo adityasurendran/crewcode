@@ -1,7 +1,7 @@
 "use strict";
-// Electron main — boots the CrewCode stack (back end + workers) and shows the
-// product in a window. Host-only: guests still join over the tunnel/PIN in a
-// browser. `--smoke` verifies orchestration headlessly (no window) for CI.
+
+
+
 const { app, BrowserWindow, shell, Menu } = require("electron");
 const path = require("node:path");
 const os = require("node:os");
@@ -13,10 +13,10 @@ const { startDatastore } = require("./datastore.js");
 const PORT = Number(process.env.PORT || process.env.API_PORT || 4100);
 const SMOKE = process.argv.includes("--smoke");
 const LAUNCH_TEST = process.argv.includes("--launch-test");
-// Embedded datastore (no Docker) — always on in the packaged app.
+
 const EMBEDDED = app.isPackaged || process.env.CREW_EMBEDDED === "1";
-// Give the packaged app its own opencode port range so it can't collide with a
-// dev stack (which derives ports from owner names too).
+
+
 if (app.isPackaged && !process.env.OPENCODE_BASE_PORT) process.env.OPENCODE_BASE_PORT = "5000";
 let datastore = null;
 let children = [];
@@ -42,7 +42,7 @@ function repoRoot() {
   return path.resolve(__dirname, "..", "..", "..");
 }
 
-// Apply infra/*.sql against the embedded database before the server starts.
+
 function runMigrate(bundledPath, assetsDir) {
   return new Promise((resolve) => {
     const env = { ...process.env, ELECTRON_RUN_AS_NODE: "1", CREW_INFRA: path.join(assetsDir, "infra") };
@@ -57,9 +57,9 @@ function isLocalUrl(url) {
   return /^https?:\/\/(127\.0\.0\.1|localhost|\[::1\])(:\d+)?(\/|$)/i.test(url);
 }
 
-// In the packaged app, the server bundle + web build + assets live in the
-// app's resources dir, and the writable data dir is Electron's userData.
-// Dev keeps running the TypeScript source from the repo.
+
+
+
 function bootPaths() {
   if (!app.isPackaged) return { serverDir: "", cwd: undefined };
   const R = process.resourcesPath;
@@ -90,7 +90,7 @@ function createWindow() {
   win.once("ready-to-show", () => win.show());
   win.loadFile(path.join(__dirname, "loading.html"));
 
-  // External links (docs, tunnel URLs, previews) open in the system browser.
+  
   win.webContents.setWindowOpenHandler(({ url }) => {
     if (isLocalUrl(url)) return { action: "allow" };
     shell.openExternal(url).catch(() => {});
@@ -132,8 +132,8 @@ function buildMenu() {
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 }
 
-// Replace an older running build instead of silently focusing it. Same build →
-// normal single-instance focus. Old build → terminate it, then take over.
+
+
 const BUILD_ID = (() => {
   try {
     return String(fs.statSync(process.execPath).mtimeMs);
@@ -169,13 +169,13 @@ if (app.isPackaged) {
     }
   } catch {}
 }
-// Let Electron's single-instance mutex release after a force-kill.
+
 if (replacedOld) sleepSync(1500);
 
 if (!app.requestSingleInstanceLock()) {
   app.quit();
 } else {
-  // We own the single-instance lock — record it (for future build replacement).
+  
   if (app.isPackaged) {
     try {
       fs.mkdirSync(path.dirname(LOCK_FILE), { recursive: true });
@@ -222,7 +222,7 @@ if (!app.requestSingleInstanceLock()) {
         const res = await startBackend({ port: PORT, spawnWorkers: false, ...boot });
         children = res.children;
         const healthy = await probe(PORT);
-        // Confirm the API also serves the built web UI (the window's target).
+        
         const served = await new Promise((resolve) => {
           const http = require("node:http");
           const req = http.get({ host: "127.0.0.1", port: PORT, path: "/", timeout: 2000 }, (r) => {
@@ -235,7 +235,7 @@ if (!app.requestSingleInstanceLock()) {
         });
         const line = `SMOKE_${healthy && served ? "OK" : "FAIL"} url=http://127.0.0.1:${PORT} packaged=${app.isPackaged} attached=${res.attached} workers=${res.children.length} html=${served}`;
         console.log(line);
-        // GUI exes detach the console on Windows — also drop a result file.
+        
         try { fs.writeFileSync(path.join(os.tmpdir(), "crewcode-smoke.txt"), line); } catch {}
         shutdown();
         setTimeout(() => app.exit(healthy && served ? 0 : 1), 800);

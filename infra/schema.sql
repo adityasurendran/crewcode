@@ -1,5 +1,5 @@
--- CrewCode infra — Postgres source of truth
--- Apply with: psql $DATABASE_URL -f infra/schema.sql
+
+
 
 create extension if not exists "pgcrypto";
 
@@ -37,7 +37,7 @@ create table if not exists events (
   id uuid primary key default gen_random_uuid(),
   task_id uuid references tasks(id) on delete cascade,
   type text not null,
-  -- intent | files_changed | deps_added | apis_used | test_result | error | merged
+  
   payload jsonb not null default '{}',
   created_at timestamptz default now()
 );
@@ -46,7 +46,7 @@ create index if not exists events_task_idx on events(task_id, created_at);
 create table if not exists artifacts (
   id uuid primary key default gen_random_uuid(),
   task_id uuid references tasks(id) on delete cascade,
-  kind text not null, -- diff | test_run | preview | integration_report
+  kind text not null, 
   uri text not null,
   meta jsonb not null default '{}',
   created_at timestamptz default now()
@@ -55,8 +55,8 @@ create table if not exists artifacts (
 create table if not exists api_connections (
   id uuid primary key default gen_random_uuid(),
   project_id uuid references projects(id) on delete cascade,
-  provider text not null, -- supabase | stripe | openai | ...
-  vault_ref text not null, -- pointer to Doppler/AWS SM, NEVER the raw key
+  provider text not null, 
+  vault_ref text not null, 
   scopes jsonb not null default '{}',
   created_at timestamptz default now()
 );

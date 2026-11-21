@@ -1,6 +1,6 @@
-// Fly.io preview deploy — real provider via FLY_API_TOKEN.
-// Creates ephemeral machine per task branch, returns live URL.
-// Prod: deploy main branch after human approve.
+
+
+
 import { query } from "./db.js";
 import { audit } from "./audit.js";
 

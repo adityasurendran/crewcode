@@ -1,6 +1,6 @@
-// AWS Secrets Manager vault provider — real secrets via server-side credentials.
-// Format: aws-sm://arn:aws:secretsmanager:region:acct:secret:name  OR  aws-sm://name (default region)
-// Credentials: AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY / AWS_REGION env, or IAM role in prod.
+
+
+
 import { createHmac, createHash } from "node:crypto";
 
 export async function resolveAwsSmSecret(ref: string): Promise<string> {
@@ -12,7 +12,7 @@ export async function resolveAwsSmSecret(ref: string): Promise<string> {
     throw new Error("AWS creds missing — set AWS_ACCESS_KEY_ID + AWS_SECRET_ACCESS_KEY or use env://");
   }
 
-  // SigV4 for secretsmanager:GetSecretValue
+  
   const host = `secretsmanager.${region}.amazonaws.com`;
   const target = "secretsmanager.GetSecretValue";
   const body = JSON.stringify({ SecretId: name });

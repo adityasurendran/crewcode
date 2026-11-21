@@ -1,5 +1,5 @@
-// Adapted from Watermelon UI "contextual-ai-bar" (MIT), simplified:
-// one rounded ask-bar with morphing submit arrow — no extra modes.
+
+
 "use client";
 import { motion, AnimatePresence } from "motion/react";
 import { Loader2 } from "lucide-react";

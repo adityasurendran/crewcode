@@ -1,13 +1,13 @@
-// Rollback — revert last merge commit on main + redeploy preview + audit.
-// Human-triggered only. Destructive action gate: explicit actor + audit row.
+
+
 import { Router } from "express";
 import { query } from "../lib/db.js";
 import { audit } from "../lib/audit.js";
 
 export const rollbackRouter = Router();
 
-// POST /rollback {project_id, task_id?, approved_by}
-// task_id = task whose merge we revert; omit => revert last crew merge on main.
+
+
 rollbackRouter.post("/", async (req, res) => {
   const { project_id, task_id, approved_by } = req.body ?? {};
   if (!approved_by) return res.status(400).json({ error: "approved_by required (human gate)" });
@@ -41,12 +41,12 @@ rollbackRouter.post("/", async (req, res) => {
       task_id,
       JSON.stringify({ reverted_commit: rev, by: approved_by }),
     ]);
-    // Trigger preview redeploy of the rolled-back state.
+    
     try {
       const { deployPreview } = await import("../lib/previews.js");
       await deployPreview(task_id, `.crew/worktrees/${task_id}`);
     } catch {
-      // redeploy optional — rollback already succeeded
+      
     }
   }
   await audit(project_id ?? null, approved_by, "rollback.revert", { reverted_commit: rev, task_id });

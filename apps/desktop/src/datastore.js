@@ -1,7 +1,7 @@
 "use strict";
-// Embedded datastore for the desktop app — no Docker. Starts a bundled Postgres
-// (embedded-postgres) and Redis (bundled binary) on local ports, and hands back
-// connection URLs for the server. Idempotent: reuses an existing data dir.
+
+
+
 const { spawn, execFileSync } = require("node:child_process");
 const { existsSync, mkdirSync } = require("node:fs");
 const { join } = require("node:path");
@@ -18,7 +18,7 @@ async function startDatastore({ dataDir, redisExe, log = console.log }) {
   const redisDir = join(dataDir, "redis");
   mkdirSync(redisDir, { recursive: true });
 
-  // --- Postgres (embedded) ---
+  
   const mod = await import("embedded-postgres");
   const EmbeddedPostgres = mod.default ?? mod;
   const pg = new EmbeddedPostgres({
@@ -39,7 +39,7 @@ async function startDatastore({ dataDir, redisExe, log = console.log }) {
   await pg.createDatabase(DB).catch(() => {});
   const DATABASE_URL = `postgres://${USER}:${PASS}@127.0.0.1:${PG_PORT}/${DB}`;
 
-  // --- Redis (bundled binary) ---
+  
   log("[datastore] starting redis…");
   const redis = spawn(redisExe, ["--port", String(REDIS_PORT), "--save", "", "--appendonly", "no", "--dir", redisDir], {
     stdio: "ignore",

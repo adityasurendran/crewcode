@@ -4,7 +4,7 @@ import { audit } from "../lib/audit.js";
 
 export const apiKeysRouter = Router();
 
-// GET /api-keys?project_id= — list keys (prefix only, never full secret)
+
 apiKeysRouter.get("/", async (req, res) => {
   const { project_id } = req.query as { project_id?: string };
   if (!project_id) return res.status(400).json({ error: "project_id required" });
@@ -12,7 +12,7 @@ apiKeysRouter.get("/", async (req, res) => {
   res.json(rows);
 });
 
-// POST /api-keys {project_id, created_by} — create key, return full secret ONCE
+
 apiKeysRouter.post("/", async (req, res) => {
   const { project_id, created_by } = req.body ?? {};
   if (!project_id || !created_by) return res.status(400).json({ error: "project_id + created_by required" });
@@ -22,7 +22,7 @@ apiKeysRouter.post("/", async (req, res) => {
   res.json({ key, prefix, note: "store now — never shown again" });
 });
 
-// DELETE /api-keys/:id — revoke key
+
 apiKeysRouter.delete("/:id", async (req, res) => {
   const rows = await query<any>(`select project_id, prefix from project_api_keys where id=$1`, [req.params.id]);
   await query(`delete from project_api_keys where id=$1`, [req.params.id]);

@@ -1,10 +1,10 @@
-// Distributed per-key locks with heartbeat renewal.
-//
-// Guarantees at most ONE agent run (and one merge) per task at any time, across
-// any number of worker processes. Long model runs are kept alive by a heartbeat
-// that renews the TTL, so the lock can't silently expire mid-run and admit a
-// duplicate. Release/renew are token-checked (Lua compare-and-set), so a worker
-// can never touch a successor's lock.
+
+
+
+
+
+
+
 import { randomBytes } from "node:crypto";
 
 export const DEFAULT_TTL_SEC = Number(process.env.RUN_LOCK_TTL_SEC ?? 1200);
@@ -34,14 +34,14 @@ async function redisStore(): Promise<LockStore> {
   };
 }
 
-// Returns the lock token, or null when the key is already held.
+
 export async function acquireRunLock(key: string, ttlSec = DEFAULT_TTL_SEC, store?: LockStore): Promise<string | null> {
   const s = store ?? (await redisStore());
   const token = randomBytes(16).toString("hex");
   try {
     return (await s.setnxex(key, token, ttlSec)) ? token : null;
   } catch {
-    // Redis down: fail OPEN so work still proceeds (session capture stays safe).
+    
     return token;
   }
 }
@@ -62,7 +62,7 @@ export async function renewRunLock(key: string, token: string, ttlSec = DEFAULT_
   }
 }
 
-// Renew the lock every ttl/3 so a long run never loses it. Returns a stop fn.
+
 export function startHeartbeat(key: string, token: string, ttlSec = DEFAULT_TTL_SEC, store?: LockStore): () => void {
   const intervalMs = Math.max(5_000, Math.floor((ttlSec * 1000) / 3));
   const timer = setInterval(() => {
@@ -74,7 +74,7 @@ export function startHeartbeat(key: string, token: string, ttlSec = DEFAULT_TTL_
 
 export type WithLockResult<T> = { acquired: boolean; result?: T };
 
-// Run `fn` while holding `key`. Renews the TTL while it runs; always releases.
+
 export async function withLock<T>(
   key: string,
   fn: () => Promise<T>,

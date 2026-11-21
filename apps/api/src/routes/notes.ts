@@ -1,4 +1,4 @@
-// Team notes — one small shared doc per project, live-synced (last-write-wins).
+
 import { Router } from "express";
 import { z } from "zod";
 import { query } from "../lib/db.js";
@@ -26,7 +26,7 @@ notesRouter.put("/", async (req, res) => {
   res.json({ ok: true });
 });
 
-// GET /notes/stream?project_id= — SSE; pushes whenever the doc changes.
+
 notesRouter.get("/stream", async (req, res) => {
   const { project_id } = req.query as { project_id?: string };
   res.setHeader("Content-Type", "text/event-stream");

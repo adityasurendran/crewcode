@@ -1,4 +1,4 @@
-// Threads + messages — the chat-first surface. One thread per (project, owner).
+
 import { existsSync, rmSync } from "node:fs";
 import { query } from "./db.js";
 
@@ -31,8 +31,8 @@ function ownerSlug(ownerId: string): string {
   return ownerId.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 24) || "teammate";
 }
 
-// Stable per-person branch + worktree, so the agent's session stays valid and
-// every message builds on the last. Deterministic — no extra columns needed.
+
+
 export function threadBranch(projectId: string, ownerId: string): string {
   return `crew/${projectId.slice(0, 8)}/${ownerSlug(ownerId)}`;
 }
@@ -55,7 +55,7 @@ export async function ensureThreadWorktree(
   const repoRoot = await resolveRepoRoot(projectId);
   const branch = threadBranch(projectId, ownerId);
   const workdir = threadWorkdir(threadId);
-  // git resolves relative worktree paths against the REPO — always absolute.
+  
   const absWorkdir = resolve(workdir);
   const norm = (p: string) => p.replace(/\\/g, "/").toLowerCase();
 
@@ -66,7 +66,7 @@ export async function ensureThreadWorktree(
     installScopedPushHook(repoRoot);
   } catch {}
 
-  // Ensure the target is a git repo with a main branch (templates ship bare).
+  
   try {
     execSync(`git -C "${repoRoot}" rev-parse --git-dir`, { stdio: "pipe" });
   } catch {
@@ -75,8 +75,8 @@ export async function ensureThreadWorktree(
     execSync(`git -C "${repoRoot}" -c user.email=crew@local -c user.name=crew commit -m init --allow-empty`, { stdio: "pipe" });
   }
 
-  // Drop any other checkout still holding this branch (e.g. a worktree that
-  // was created with a repo-relative path by mistake).
+  
+  
   try {
     execSync(`git -C ${repoRoot} worktree prune`, { stdio: "pipe" });
     const list = execSync(`git -C ${repoRoot} worktree list --porcelain`, { stdio: "pipe" }).toString();
@@ -89,9 +89,9 @@ export async function ensureThreadWorktree(
     }
   } catch {}
 
-  // A worktree can outlive the checkout it points at (app moved, repo
-  // re-packed). If its gitdir link is broken, drop it so it can be recreated
-  // instead of failing every later sync with "not a git repository".
+  
+  
+  
   try {
     if (existsSync(absWorkdir)) {
       let healthy = false;
@@ -103,7 +103,7 @@ export async function ensureThreadWorktree(
     }
   } catch {}
 
-  // Existing branch → checkout; new branch → create.
+  
   try {
     execSync(`git -C ${repoRoot} worktree add "${absWorkdir}" ${branch}`, { stdio: "pipe" });
   } catch {

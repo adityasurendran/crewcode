@@ -1,14 +1,14 @@
-// Database import — bring an existing Postgres/Supabase database the way
-// GitHub import brings existing code. The URL is vaulted server-side (never
-// logged, never sent to agents); the schema snapshot becomes a db_schema
-// artifact + prompt context so agents generate code against real tables.
+
+
+
+
 import { query } from "./db.js";
 import { encryptSecret } from "./secrets.js";
 import { audit } from "./audit.js";
 
 export type ParsedDbUrl = { host: string; port: string; database: string; user: string; redacted: string };
 
-// Pure — unit-tested. Throws on anything that is not a Postgres URL.
+
 export function parseDatabaseUrl(raw: string): ParsedDbUrl {
   const s = String(raw ?? "").trim();
   if (!s) throw new Error("invalid database URL: empty");
@@ -39,7 +39,7 @@ export async function importDatabase(
 ): Promise<{ tables: number; columns: number; host: string; database: string }> {
   const parsed = parseDatabaseUrl(databaseUrl);
 
-  // Vault the full URL (password included) — only a ref is stored elsewhere.
+  
   const saved = await query<any>(`insert into vault_secrets (project_id, provider, enc) values ($1,'postgres',$2) returning id`, [
     projectId,
     encryptSecret(databaseUrl.trim()),
@@ -52,7 +52,7 @@ export async function importDatabase(
     [projectId, vaultRef, JSON.stringify({ database: parsed.database, host: parsed.host })]
   );
 
-  // Connect once (short timeouts — never hang a request) and snapshot the schema.
+  
   const { Pool } = await import("pg");
   const pool = new Pool({ connectionString: databaseUrl.trim(), connectionTimeoutMillis: 8000, statement_timeout: 15000 });
   try {
@@ -98,8 +98,8 @@ export async function importDatabase(
   }
 }
 
-// Markdown context appended to the agent prompt so generated code matches real tables.
-// Schema only — credentials never leave the vault.
+
+
 export async function dbSchemaContext(projectId: string): Promise<string> {
   try {
     const rows = await query<any>(

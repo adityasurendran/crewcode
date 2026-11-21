@@ -1,6 +1,6 @@
-// Merge worker daemon — polls crew:merge-queue, runs deterministic checks,
-// triggers LLM semantic fix (max 2 retries), else marks blocked.
-// Run: npm run worker:merge -w apps/api
+
+
+
 import { redis } from "../lib/queue.js";
 import { QUEUES } from "../lib/queue.js";
 import { query } from "../lib/db.js";
@@ -12,15 +12,15 @@ import { notify } from "../lib/notify.js";
 
 const MAX_RETRY = 2;
 
-// The repo a task integrates into comes from its PROJECT, not a hardcoded
-// path — every project merges into its own repo_url (absolute-resolved).
+
+
 async function repoRootFor(task: any): Promise<string> {
   const { resolveRepoRoot } = await import("../lib/sandbox.js");
   return resolveRepoRoot(task.project_id);
 }
 
-// If a run finished without leaving a chat reply (tool-only turn, quick no-op,
-// or a failure), make sure the thread still ends with a clear message.
+
+
 async function ensureReply(task: any, fallback: string) {
   if (!task?.thread_id) return;
   try {
@@ -46,7 +46,7 @@ async function handleMerge(raw: string) {
     console.log(`[merge-worker] ${taskId} already merged — skipping`);
     return;
   }
-  // One merge per task at a time; duplicate queue entries are dropped.
+  
   const { withLock, mergeLockKey } = await import("../lib/runlock.js");
   const res = await withLock(mergeLockKey(taskId), () => mergeBody(taskId, retry, approved));
   if (!res.acquired) {
@@ -60,9 +60,9 @@ async function mergeBody(taskId: string, retry: number, approved = false) {
   const rows = await query(`select * from tasks where id=$1`, [taskId]);
   if (!rows.length) return;
   const task = rows[0];
-  if (task.status === "merged") return; // re-check under the lock
+  if (task.status === "merged") return; 
 
-  // E2B sandbox: pull changed files into .crew/sync/<taskId>/ before integration.
+  
   if (task.sandbox_id?.startsWith("e2b-")) {
     try {
       await pullFromSandbox(task.sandbox_id, taskId);
@@ -78,7 +78,7 @@ async function mergeBody(taskId: string, retry: number, approved = false) {
     }
   }
 
-  // Chat tasks build in their thread's persistent worktree, not a per-task dir.
+  
   const workdir = (task as any).thread_id ? `.crew/worktrees/thread-${(task as any).thread_id}` : `.crew/worktrees/${taskId}`;
   const { existsSync } = await import("node:fs");
   if (!existsSync(workdir)) {
@@ -89,7 +89,7 @@ async function mergeBody(taskId: string, retry: number, approved = false) {
     return;
   }
 
-  // Idempotency: if the branch is already an ancestor of main, don't re-merge.
+  
   try {
     const { execSync } = await import("node:child_process");
     const repoRoot = await repoRootFor(task);
@@ -103,11 +103,11 @@ async function mergeBody(taskId: string, retry: number, approved = false) {
     await ensureReply(task, "Merged — no file changes were needed.");
     return;
   } catch {
-    // not yet merged — proceed with integration
+    
   }
 
-  // Human approval gate (youth-safe default): park BEFORE expensive checks so
-  // the team sees the result immediately and decides.
+  
+  
   const projs = await query<any>(`select require_approval from projects where id=$1`, [task.project_id]).catch(() => []);
   if (projs[0]?.require_approval && !approved) {
     await query(`update tasks set status='awaiting_approval' where id=$1`, [taskId]);
@@ -165,10 +165,10 @@ async function mergeBody(taskId: string, retry: number, approved = false) {
     return;
   }
 
-  // Failed deterministic checks — hand to the CENTRAL INTEGRATION AGENT.
+  
   const failing = results.find((r) => !r.ok);
   if (retry < MAX_RETRY) {
-    // Build a project-aware brief for the integrator: failing check + log + diff.
+    
     let diffStat = "";
     try {
       const { execSync } = await import("node:child_process");
@@ -202,7 +202,7 @@ dependent code so the checks pass, then stop. Do not refactor.`;
       integratorNote = String(e?.message ?? e).slice(0, 200);
     }
 
-    // Fallback: legacy deterministic-ish semantic patch hook.
+    
     if (!integratorOk) {
       const patch = await semanticPatch({
         taskId,
@@ -220,7 +220,7 @@ dependent code so the checks pass, then stop. Do not refactor.`;
     }
 
     if (integratorOk) {
-      // Integrator edited the worktree — sync + re-queue integration.
+      
       try {
         const { syncSandboxToBranch } = await import("../lib/sandbox-sync.js");
         await syncSandboxToBranch(taskId, taskId);

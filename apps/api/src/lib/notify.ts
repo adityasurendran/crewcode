@@ -1,6 +1,6 @@
-// Notifications — task_done / task_blocked / merged / rollback.
-// Phase 0: Slack webhook if SLACK_WEBHOOK_URL set, else console + events log.
-// Never sends secrets — payloads already redacted upstream.
+
+
+
 export type NotifyPayload = {
   kind: "task_done" | "task_blocked" | "merged" | "rollback" | "semantic_patch";
   taskId?: string;
@@ -21,7 +21,7 @@ export async function notify(p: NotifyPayload): Promise<void> {
         body: JSON.stringify({ text }),
       });
     } catch {
-      // never break main flow on notify failure
+      
     }
   }
   console.log(`[notify] ${text}`);

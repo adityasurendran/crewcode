@@ -1,5 +1,5 @@
-// Fly.io deploy improvements — create/trigger machines with proper env vars.
-// Uses FLY_API_TOKEN; app IDs come from project settings (fly_app_id).
+
+
 import { query } from "./db.js";
 import { audit } from "./audit.js";
 

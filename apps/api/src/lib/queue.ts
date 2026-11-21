@@ -1,5 +1,5 @@
-// Queue abstraction — Phase 0 uses Redis lists via ioredis.
-// Swap to BullMQ workers in Phase 1 without changing route code.
+
+
 import { Redis } from "ioredis";
 
 const url = process.env.REDIS_URL ?? "redis://localhost:6379";

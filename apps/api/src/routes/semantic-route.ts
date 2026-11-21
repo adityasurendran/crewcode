@@ -6,7 +6,7 @@ import { audit } from "../lib/audit.js";
 
 export const semanticRouteRouter = Router();
 
-// GET /semantic-route?task_id= — current model tier for a task's semantic patches
+
 semanticRouteRouter.get("/", async (req, res) => {
   const { task_id } = req.query as { task_id?: string };
   if (!task_id) return res.status(400).json({ error: "task_id required" });
@@ -26,7 +26,7 @@ semanticRouteRouter.get("/", async (req, res) => {
   res.json({ task_id, kind: "semantic_patch", tier, model, source, cost_per_1k: TIER_COST_PER_1K[tier as keyof typeof TIER_COST_PER_1K] });
 });
 
-// PATCH /semantic-route {task_id, tier} — override tier for this task's project
+
 semanticRouteRouter.patch("/", async (req, res) => {
   const parsed = z.object({ task_id: z.string().uuid(), tier: z.enum(["tiny", "cheap", "standard", "heavy", "frontier"]) }).safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error);

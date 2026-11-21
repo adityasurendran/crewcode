@@ -1,7 +1,7 @@
-// Installs a git pre-push guard so agents can ONLY push their own crew/* branch.
-// This is enforcement independent of the model: even if an agent tries to push
-// main (or force-push), git refuses. Hook lives in the shared repo hooks dir so
-// it applies to every worktree of that repo. Works with Git for Windows (sh).
+
+
+
+
 import { mkdirSync, writeFileSync, chmodSync, existsSync } from "node:fs";
 import { join } from "node:path";
 

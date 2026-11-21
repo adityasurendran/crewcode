@@ -6,7 +6,7 @@ import { audit } from "../lib/audit.js";
 
 export const authRouter = Router();
 
-// POST /auth/keys {project_id, created_by, org_id?, email?} — upserts user+membership, returns key once
+
 authRouter.post("/keys", async (req, res) => {
   const parsed = z.object({ project_id: z.string().uuid(), created_by: z.string().email().or(z.string().min(1)) }).safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error);

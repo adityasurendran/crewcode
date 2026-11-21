@@ -1,5 +1,5 @@
-// Project graph — structured context for agents, not raw file dumps.
-// Phase 0: fast static scan (routes/components/schema/deps). Phase 1: cache in Postgres+S3 + watcher.
+
+
 import { readdir, readFile, stat } from "node:fs/promises";
 import { join } from "node:path";
 

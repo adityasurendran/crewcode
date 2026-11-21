@@ -3,7 +3,7 @@ import { query } from "../lib/db.js";
 
 export const deploymentsRouter = Router();
 
-// GET /deployments?project_id= — recent preview/prod deployment status
+
 deploymentsRouter.get("/", async (req, res) => {
   const { project_id } = req.query as { project_id?: string };
   const n = 30;

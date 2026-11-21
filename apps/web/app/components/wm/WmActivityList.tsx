@@ -1,5 +1,5 @@
-// Adapted from Watermelon UI "activities-card" (MIT), simplified:
-// spring header + height-animated expandable rows, our tokens.
+
+
 "use client";
 import { useState, type ReactNode } from "react";
 import { motion, AnimatePresence, MotionConfig } from "motion/react";

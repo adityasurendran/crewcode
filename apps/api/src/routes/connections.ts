@@ -10,14 +10,14 @@ const PROVIDERS = ["supabase", "stripe", "openai", "github", "postgres", "resend
 const Upsert = z.object({
   project_id: z.string().uuid(),
   provider: z.enum(PROVIDERS),
-  // Either a vault pointer (env://KEY, doppler://.., aws-sm://.., crewvault://..)
-  // or a raw key in `api_key`, which CrewCode vaults server-side and never shows again.
+  
+  
   vault_ref: z.string().min(1).optional(),
   api_key: z.string().min(8).optional(),
   scopes: z.record(z.any()).default({}),
 });
 
-// GET /connections?project_id= — list (vault_ref masked to provider only)
+
 connectionsRouter.get("/", async (req, res) => {
   const { project_id } = req.query;
   const rows = project_id
@@ -34,7 +34,7 @@ connectionsRouter.post("/", async (req, res) => {
   const { project_id, provider, scopes } = parsed.data;
   let vault_ref = parsed.data.vault_ref ?? "";
 
-  // Raw key pasted in the UI? Vault it server-side (encrypted) and keep only the ref.
+  
   const raw = (parsed.data.api_key ?? (!vault_ref.includes("://") ? vault_ref : "")).trim();
   if (raw) {
     const { encryptSecret } = await import("../lib/secrets.js");
@@ -55,9 +55,9 @@ connectionsRouter.post("/", async (req, res) => {
   res.json(rows[0] ?? { ok: true });
 });
 
-// POST /connections/import-db {project_id, database_url} — import an existing
-// Postgres/Supabase database: vault the URL, snapshot the schema for agents.
-// Error messages never echo the URL (it contains a password).
+
+
+
 const ImportDb = z.object({ project_id: z.string().uuid(), database_url: z.string().min(1) });
 connectionsRouter.post("/import-db", async (req, res) => {
   const parsed = ImportDb.safeParse(req.body);
@@ -76,7 +76,7 @@ import { importDatabase } from "../lib/db-import.js";
 
 connectionsRouter.delete("/:id", async (req, res) => {  const rows = await query(`select project_id, provider, vault_ref from api_connections where id=$1`, [req.params.id]);
   await query(`delete from api_connections where id=$1`, [req.params.id]);
-  // Also drop the linked CrewCode-vaulted secret so nothing lingers.
+  
   const ref = String(rows[0]?.vault_ref ?? "");
   if (ref.startsWith("crewvault://")) {
     await query(`delete from vault_secrets where id=$1`, [ref.slice("crewvault://".length)]).catch(() => {});

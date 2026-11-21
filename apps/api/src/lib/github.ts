@@ -1,11 +1,11 @@
-// GitHub sync — import repo, push task branches, open PRs.
-// Auth: server-side token from Vault (env://GITHUB_TOKEN dev, doppler/aws prod).
-// Agents never see the token. All calls audited.
+
+
+
 import { resolveSecret } from "./vault.js";
 import { audit } from "./audit.js";
 
 export function parseRepoUrl(repoUrl: string): { owner: string; repo: string } {
-  // accepts https://github.com/owner/repo(.git) or git@github.com:owner/repo.git
+  
   const m =
     repoUrl.match(/github\.com[:/]([^/]+)\/([^/.]+?)(?:\.git)?\/?$/) ||
     repoUrl.match(/^\s*([^/]+)\/([^/]+)\s*$/);
@@ -29,7 +29,7 @@ async function gh(path: string, token: string, init?: RequestInit) {
 }
 
 export async function getGithubToken(projectId?: string): Promise<string> {
-  // Per-project connection first (Integrations → GitHub), shared env fallback.
+  
   if (projectId) {
     try {
       const { query } = await import("./db.js");
@@ -45,7 +45,7 @@ export async function getGithubToken(projectId?: string): Promise<string> {
   }
 }
 
-// Clone for local/E2B sandbox seed. Returns local path.
+
 export async function cloneForSandbox(repoUrl: string, destDir: string, branch = "main"): Promise<string> {
   const { execSync } = await import("node:child_process");
   const token = await getGithubToken().catch(() => null);

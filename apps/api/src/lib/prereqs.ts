@@ -1,10 +1,10 @@
-// Self-installing prerequisites — CrewCode fetches everything it needs by itself.
-// Strategy: portable binaries into `.crew/bin` (project-local, NO admin rights).
-// - cloudflared: GitHub releases, single binary (win exe / linux bin / mac tgz).
-// - node: standalone node.exe on Windows; tarball + system tar on unix.
-// - opencode: `npm i -g opencode-ai` when npm exists.
-// - git/docker: detect + one-click attempt (winget/brew) or guided link —
-//   these can need admin/reboot, so they are "guided", not silent.
+
+
+
+
+
+
+
 import { execSync } from "node:child_process";
 import { existsSync, mkdirSync, chmodSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -14,7 +14,7 @@ export const NODE_WANT_MAJOR = 20;
 
 export function ensureBinDir() {
   mkdirSync(BIN_DIR, { recursive: true });
-  // Make sure child processes resolve our portable tools first.
+  
   const cur = process.env.PATH ?? "";
   if (!cur.split(";").concat(cur.split(":")).includes(BIN_DIR)) {
     process.env.PATH = `${BIN_DIR}${isWin() ? ";" : ":"}${cur}`;
@@ -33,7 +33,7 @@ export function exe(name: string): string {
   return isWin() ? `${name}.exe` : name;
 }
 
-/** Resolve a tool: .crew/bin first, then PATH. Returns absolute or bare name. */
+
 export function resolveBin(name: string): string | null {
   const local = join(BIN_DIR, exe(name));
   if (existsSync(local)) return local;
@@ -67,7 +67,7 @@ export async function downloadFile(url: string, dest: string): Promise<void> {
   }
 }
 
-// ---- cloudflared asset naming (github.com/cloudflare/cloudflared releases) ----
+
 export function cloudflaredAsset(): string {
   if (isWin()) return "cloudflared-windows-amd64.exe";
   if (process.platform === "darwin") return `cloudflared-darwin-${arch()}.tgz`;
@@ -78,7 +78,7 @@ export function cloudflaredUrl(): string {
   return `https://github.com/cloudflare/cloudflared/releases/latest/download/${cloudflaredAsset()}`;
 }
 
-// ---- node asset naming (nodejs.org/dist) ----
+
 export const NODE_PIN = process.env.NODE_PIN_VERSION ?? "v20.19.0";
 
 export function nodeDownload(): { url: string; kind: "exe" | "targz" } {
@@ -93,12 +93,12 @@ export function parseNodeMajor(versionOut: string): number | null {
   return m ? Number(m[1]) : null;
 }
 
-// ---- tool registry ----
+
 export type ToolStatus = {
   id: string;
   label: string;
   required: boolean;
-  auto: boolean; // false = guided install only (may need admin)
+  auto: boolean; 
   installed: boolean;
   version: string | null;
   path?: string | null;
@@ -164,7 +164,7 @@ export async function fullStatus(): Promise<ToolStatus[]> {
   return [await checkNode(), await checkCloudflared(), await checkGit(), await checkOpencode(), await checkDocker()];
 }
 
-// ---- installers (auto tools only) ----
+
 export async function installCloudflared(): Promise<{ path: string; version: string | null }> {
   ensureBinDir();
   const asset = cloudflaredAsset();
@@ -218,7 +218,7 @@ export async function installOpencode(): Promise<{ path: string; version: string
 }
 
 export async function installGitGuided(): Promise<{ ok: false; command: string }> {
-  // Needs admin/package manager — attempt nothing silent, return the one-liner.
+  
   if (isWin()) return { ok: false as const, command: "winget install -e --id Git.Git" };
   if (process.platform === "darwin") return { ok: false as const, command: "brew install git" };
   return { ok: false as const, command: "sudo apt-get install -y git  # or: sudo dnf install -y git" };

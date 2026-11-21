@@ -1,8 +1,8 @@
-// Integration pipeline: deterministic checks first, LLM semantic fix only on failure.
-// install (if node_modules missing) -> rebase (only if a remote exists) ->
-// typecheck -> unit -> browser -> build.
-// Steps whose tooling is absent in the project are SKIPPED (not failed), so a
-// bare template doesn't produce false negatives. Max 2 LLM retries downstream.
+
+
+
+
+
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -33,7 +33,7 @@ export async function integrateTask(workdir: string, mainBranch = "main"): Promi
   const pkg = readPkg(workdir);
   const scripts = pkg?.scripts ?? {};
 
-  // Only rebase when a git remote AND the upstream base branch actually exist.
+  
   const remotes = await sh("git remote", workdir);
   const hasOrigin = remotes.ok && remotes.log.split(/\s+/).includes("origin");
   let hasUpstream = false;
@@ -46,8 +46,8 @@ export async function integrateTask(workdir: string, mainBranch = "main"): Promi
   if (hasUpstream) steps.push(["rebase", `git fetch origin ${mainBranch} && git rebase origin/${mainBranch}`]);
 
   const hasDeps = existsSync(join(workdir, "node_modules"));
-  // Keep merges fast: only verify when deps are already installed. Installing
-  // per turn made every chat message take ~a minute.
+  
+  
   if (hasDeps && existsSync(join(workdir, "tsconfig.json"))) steps.push(["typecheck", "npx -y -p typescript tsc --noEmit"]);
   if (scripts.test && hasDeps) steps.push(["unit", "npm test -- --passWithNoTests"]);
   if ((existsSync(join(workdir, "playwright.config.ts")) || existsSync(join(workdir, "playwright.config.js"))) && hasDeps)
@@ -57,17 +57,17 @@ export async function integrateTask(workdir: string, mainBranch = "main"): Promi
   for (const [name, cmd] of steps) {
     if (!cmd) continue;
     const r = await sh(cmd, workdir);
-    // Can't fetch deps here (offline / packaged / big template)? Don't fail the
-    // whole integration on that — skip the rest rather than block the user.
+    
+    
     if (name === "install" && !r.ok) {
       results.push({ name: "install", ok: true, skipped: true, log: r.log.slice(-400) });
       break;
     }
     results.push({ name, ...r });
-    if (!r.ok) break; // stop, send log back to owning agent
+    if (!r.ok) break; 
   }
 
-  // If the project has no checks at all, treat it as a pass so the merge proceeds.
+  
   if (results.length === 0) results.push({ name: "no-checks", ok: true, log: "project has no verifiable tooling; accepted", skipped: true });
 
   return results;

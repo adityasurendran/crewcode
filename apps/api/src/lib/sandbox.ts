@@ -1,20 +1,20 @@
-// Sandbox provider interface — E2B default, local-worktree for dev only.
-// Prod rule: agents never see secrets, never touch host git directly.
+
+
 import { isAbsolute, resolve, sep } from "node:path";
 export type Sandbox = { id: string; workdir: string; branch: string };
 
-// Relative repo paths ("templates/next-supabase") resolve against the app's
-// assets dir in the packaged app, or the repo root in dev. Project repos live
-// under the writable data dir (cwd), not inside the app bundle.
+
+
+
 function absRepo(p: string): string {
   if (isAbsolute(p)) return p;
   const local = p === ".crew" || p.startsWith(".crew/") || p.startsWith(`.crew${sep}`);
   return resolve(local ? process.cwd() : (process.env.CREW_ASSETS ?? process.cwd()), p);
 }
 
-// The repo for local worktrees comes from the PROJECT row (explicit override
-// first), so every project builds/merges in its own repo — never a hardcoded
-// single template dir.
+
+
+
 export async function resolveRepoRoot(projectId?: string, override?: string): Promise<string> {
   if (override) return absRepo(override);
   if (projectId) {
@@ -25,7 +25,7 @@ export async function resolveRepoRoot(projectId?: string, override?: string): Pr
         const { ensureProjectRepo } = await import("./project-repo.js");
         return await ensureProjectRepo(projectId, proj.repo_url);
       }
-      // No repo_url yet: give the project its own starter repo.
+      
       const { ensureProjectRepo } = await import("./project-repo.js");
       return await ensureProjectRepo(projectId);
     } catch {}
@@ -47,7 +47,7 @@ export async function createSandbox(
   if (p === "e2b") {
     const key = process.env.E2B_API_KEY;
     if (!key) throw new Error("E2B_API_KEY missing — set SANDBOX_PROVIDER=local-worktree for dev");
-    // Resolve repo URL: explicit param > project row > TARGET_REPO_URL env.
+    
     let url = repoRoot ?? "";
     if (!url) {
       try {
@@ -75,7 +75,7 @@ export async function createSandbox(
     } else {
       await sbx.commands.run(`mkdir -p /home/user/repo && cd /home/user/repo && git init -b ${branch}`);
     }
-    // No secrets injected. Workdir is inside sandbox; control plane syncs diffs out via git.
+    
     return { id: `e2b-${sbx.sandboxId ?? sbx.id ?? taskId}`, workdir: "e2b:/home/user/repo", branch };
   }
   if (p === "daytona") {
@@ -84,13 +84,13 @@ export async function createSandbox(
     );
   }
 
-  // DEV ONLY: operate on the TARGET project repo, never crewcode itself.
+  
   const root = await resolveRepoRoot(projectId, repoRoot);
   const { execSync } = await import("node:child_process");
   const { existsSync, mkdirSync, cpSync } = await import("node:fs");
   const workdir = `.crew/worktrees/${taskId}`;
   try {
-    // Ensure target repo is a git repo with a main branch.
+    
     execSync(`git -C ${root} rev-parse --git-dir`, { stdio: "pipe" });
   } catch {
     execSync(`git -C ${root} init -b main`, { stdio: "pipe" });
@@ -98,13 +98,13 @@ export async function createSandbox(
     execSync(`git -C ${root} -c user.email=crew@local -c user.name=crew commit -m "init" --allow-empty`, { stdio: "pipe" });
   }
   try {
-    // Scoped-push guard: agents may push only crew/* (never main) — enforced by git.
+    
     const { installScopedPushHook } = await import("./git-hooks.js");
     installScopedPushHook(root);
     execSync(`git -C ${root} worktree add ../../.crew/worktrees/${taskId} -b ${branch}`, { stdio: "pipe" });
     return { id: `local-${taskId}`, workdir, branch };
   } catch {
-    // Fallback: plain filesystem copy when git worktree unavailable (Windows edge).
+    
     mkdirSync(".crew/worktrees", { recursive: true });
     if (!existsSync(workdir)) cpSync(root, workdir, { recursive: true });
     return { id: `local-copy-${taskId}`, workdir, branch };
@@ -118,7 +118,7 @@ export async function destroySandbox(s: Sandbox, repoRoot?: string) {
       const Sbx = E2B.Sandbox ?? E2B.default?.Sandbox;
       await Sbx.kill(s.id.replace(/^e2b-/, ""));
     } catch {
-      // already dead / dep missing — nothing to do
+      
     }
     return;
   }
@@ -133,5 +133,5 @@ export async function destroySandbox(s: Sandbox, repoRoot?: string) {
     }
     return;
   }
-  // Unknown sandbox kinds have nothing to tear down (Daytona is not implemented).
+  
 }

@@ -1,7 +1,7 @@
 import { query } from "./db.js";
 
-// Token/cost budgets — hard kill-switch per task, per project.
-// Phase 0: Postgres counters. Phase 1: Redis sliding window + Stripe meters.
+
+
 export async function checkBudget(taskId: string): Promise<{ ok: boolean; used: number; budget: number }> {
   const rows = await query(`select tokens_used, budget_tokens from tasks where id=$1`, [taskId]);
   if (!rows.length) throw new Error("task not found");

@@ -1,9 +1,9 @@
-// Billing — token meters -> USD. Rates per 1K tokens (tune per model).
-// Phase 0: Postgres counters + computed cost. Phase 1: Stripe meters + budgets UI.
+
+
 import { query } from "./db.js";
 
 export const RATES: Record<string, number> = {
-  default: 0.002, // $2 / 1M blended — the metered rate until gateway pricing lands
+  default: 0.002, 
   "opencode-go/deepseek-v4.1-flash": 0.002,
   "opencode-go/mimo-v2.5": 0.002,
   "opencode-go/mimo-v2.6-pro": 0.002,

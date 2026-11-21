@@ -1,9 +1,9 @@
-﻿// Generates CrewCode's tailored OpenCode configuration from the ONE centrally
-// entered provider key + mandated model. Every teammate instance and the central
-// integrator run with OPENCODE_CONFIG pointed at one of these profiles, so:
-//   - only the mandated provider/model can be used (enabled_providers + model)
-//   - the agent prompt, permissions and tool scope are CrewCode's (not the user's)
-//   - raw env/secrets are denied; git push is scoped to crew/* via a pre-push hook
+﻿
+
+
+
+
+
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { query } from "./db.js";
@@ -11,17 +11,17 @@ import { decryptSecret, encryptSecret, maskKey } from "./secrets.js";
 
 export type ProviderSettings = { provider: string; model: string; has_key: boolean; key_masked: string };
 
-// Pure builder for the `provider:` section of the opencode config —
-// unit-tested. apiKey gating is preserved: no key, no provider section.
-// Only the opencode-go backend is supported (enforced in POST /provider).
+
+
+
 export function providerOptions(provider: string, apiKey: string): Record<string, unknown> | undefined {
   if (!provider || !apiKey) return undefined;
   return { [provider]: { options: { apiKey } } };
 }
 
 const PROFILE_DIR = ".crew/opencode";
-// Assets (prompts, MCP server) live next to the app in dev, and in the packaged
-// app's resources dir (CREW_ASSETS) — resolve both.
+
+
 const ASSETS = process.env.CREW_ASSETS ?? process.cwd();
 const PROMPT_DIR_CANDIDATES = [
   join(ASSETS, "opencode-crew", "prompts"),
@@ -43,7 +43,7 @@ export async function getProviderSettings(): Promise<ProviderSettings> {
   for (const r of rows) map[r.key] = r.value;
   const key = map.api_key ? decryptSecret(map.api_key) : "";
   return {
-    // opencode-go is the backend and needs no stored key (gateway auth).
+    
     provider: map.provider || "opencode-go",
     model: map.model || "opencode-go/mimo-v2.6-pro",
     has_key: !!key,
@@ -69,7 +69,7 @@ export async function clearProviderKey(): Promise<void> {
   await query(`delete from app_settings where key='api_key'`).catch(() => {});
 }
 
-// Deny reads of env/secret files; scope git push; block deploy/force.
+
 function permissions(role: "crew" | "integrator") {
   return {
     read: { "**/.env": "deny", "**/.env.*": "deny", "**/auth.json": "deny", "*": "allow" },
@@ -102,7 +102,7 @@ function buildConfig(opts: { role: "crew" | "integrator"; provider: string; mode
     model,
     small_model: model,
     provider: providerOptions(provider, apiKey),
-    // CrewCode capability tools — the sanctioned path to shared services.
+    
     mcp: existsSync(mcpServer)
       ? {
           crewcode: {
@@ -139,7 +139,7 @@ export async function buildProfile(role: "crew" | "integrator", owner?: string):
   return { path, model: cfg.model, configured };
 }
 
-// Env to hand to any `opencode` invocation for CrewCode's tailored behavior.
+
 export async function profileEnv(role: "crew" | "integrator", owner?: string): Promise<{ OPENCODE_CONFIG: string; [k: string]: string }> {
   const { path, model } = await buildProfile(role, owner);
   return { OPENCODE_CONFIG: path, CREW_MODEL: model };

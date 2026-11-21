@@ -1,5 +1,5 @@
-// GitHub PR webhook — receives PR events, updates task/artifact state.
-// POST /github/webhook — signature-verified (X-Hub-Signature-256 with GITHUB_WEBHOOK_SECRET).
+
+
 import { Router } from "express";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { raw } from "express";
@@ -45,7 +45,7 @@ githubWebhookRouter.post("/", raw({ type: "application/json" }), async (req, res
       const action = j.action ?? "unknown";
       const branch = pr.head?.ref ?? "";
       const repo = pr.base?.repo?.full_name ?? "";
-      // Find task by branch name.
+      
       const tasks = await query<any>(`select * from tasks where branch=$1`, [branch]).catch(() => []);
       const task = tasks[0];
       if (task) {

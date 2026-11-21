@@ -5,13 +5,13 @@ import { audit } from "../lib/audit.js";
 
 export const providerRouter = Router();
 
-// GET /provider — the ONE centrally configured provider + mandated model (key masked)
+
 providerRouter.get("/", async (_req, res) => {
   res.json(await getProviderSettings());
 });
 
-// POST /provider {provider, model, api_key?} — entered once at setup.
-// opencode-go is the only model backend; enforced here, not just in the UI.
+
+
 providerRouter.post("/", async (req, res) => {
   const parsed = z
     .object({ provider: z.enum(["opencode-go"]), model: z.string().min(1), api_key: z.string().optional() })
@@ -22,13 +22,13 @@ providerRouter.post("/", async (req, res) => {
   res.json(settings);
 });
 
-// DELETE /provider/key — remove the stored key
+
 providerRouter.delete("/key", async (_req, res) => {
   await clearProviderKey();
   res.json({ ok: true });
 });
 
-// GET /provider/validate — rebuild the tailored profile and report readiness
+
 providerRouter.get("/validate", async (_req, res) => {
   const s = await getProviderSettings();
   const crew = await buildProfile("crew");

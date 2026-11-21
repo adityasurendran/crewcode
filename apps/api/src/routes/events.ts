@@ -4,7 +4,7 @@ import { queryWithOrg } from "../lib/db-rls.js";
 
 export const eventsRouter = Router();
 
-// GET /events?project_id=&org_id=&limit= — recent structured events, never raw chat
+
 eventsRouter.get("/", async (req, res) => {
   const { project_id, org_id, limit } = req.query as { project_id?: string; org_id?: string; limit?: string };
   const n = Math.min(Number(limit) || 100, 500);
@@ -27,8 +27,8 @@ eventsRouter.get("/", async (req, res) => {
   res.json(rows);
 });
 
-// GET /events/stream — SSE for live board. Polls Postgres every 2s (Phase 0).
-// Phase 1: switch to Redis pub/sub from workers for instant push.
+
+
 eventsRouter.get("/stream", async (req, res) => {
   const { project_id } = req.query as { project_id?: string };
   res.setHeader("Content-Type", "text/event-stream");
@@ -51,7 +51,7 @@ eventsRouter.get("/stream", async (req, res) => {
         }
       }
     } catch {
-      // db hiccup — keep stream alive
+      
     }
   }, 2000);
   req.on("close", () => clearInterval(timer));

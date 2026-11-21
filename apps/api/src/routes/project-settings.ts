@@ -5,14 +5,14 @@ import { audit } from "../lib/audit.js";
 
 export const projectsSettingsRouter = Router();
 
-// GET /projects/:id/settings — deployment provider config
+
 projectsSettingsRouter.get("/:id/settings", async (req, res) => {
   const rows = await query<any>(`select * from projects where id=$1`, [req.params.id]);
   if (!rows.length) return res.status(404).json({ error: "project not found" });
   res.json(rows[0]);
 });
 
-// PATCH /projects/:id/settings {railway_*, fly_app_id, vercel_*, stripe_customer_id?}
+
 projectsSettingsRouter.patch("/:id/settings", async (req, res) => {
   const allowed = ["railway_service_id", "railway_env_id", "fly_app_id", "vercel_project_id", "vercel_team_id", "vercel_deploy_hook_url", "stripe_customer_id"];
   const updates: Record<string, any> = {};
@@ -28,7 +28,7 @@ projectsSettingsRouter.patch("/:id/settings", async (req, res) => {
   res.json({ ok: true });
 });
 
-// Migration guard: ensure columns exist (best-effort, dev convenience)
+
 projectsSettingsRouter.post("/:id/migrate", async (_req, res) => {
   await query(`alter table projects add column if not exists railway_service_id text`).catch(() => {});
   await query(`alter table projects add column if not exists railway_env_id text`).catch(() => {});

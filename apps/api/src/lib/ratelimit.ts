@@ -1,6 +1,6 @@
-// Redis sliding-window rate limits — per actor + per route.
-// Defaults: 60 task-creates/hour, 300 capability calls/hour, 600 reads/hour.
-// Exceeding returns 429 with retry_after. Uses Redis INCR+EXPIRE (fixed window, Phase 0).
+
+
+
 import type { Request, Response, NextFunction } from "express";
 import { redis } from "./queue.js";
 
@@ -16,7 +16,7 @@ function keyFor(req: Request, rule: string): string {
 }
 
 export async function rateLimit(req: Request, res: Response, next: NextFunction) {
-  // Skip when Redis unavailable (dev without docker) — fail open, log once.
+  
   try {
     const routeKey = `${req.method}:${req.path.split("/").slice(0, 2).join("/")}`;
     const rule = LIMITS[routeKey] ?? LIMITS[`${req.method}:${req.path}`] ?? LIMITS.default;

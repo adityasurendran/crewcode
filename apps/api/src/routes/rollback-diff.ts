@@ -1,5 +1,5 @@
-// Rollback diff endpoint — returns the diff for a rollback before confirming.
-// GET /rollback/diff?task_id=&project_id= — show what will be reverted.
+
+
 import { Router } from "express";
 import { query } from "../lib/db.js";
 
@@ -28,7 +28,7 @@ rollbackDiffRouter.get("/", async (req, res) => {
     diff = "(diff unavailable)";
   }
 
-  // Store as artifact for audit trail.
+  
   await query(`insert into artifacts (task_id, kind, uri, meta) values ($1,'rollback_diff',$2,$3)`, [
     task_id,
     `git:${rev}`,

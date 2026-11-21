@@ -1,6 +1,6 @@
-// Each project gets its own writable git repo. The packaged starter lives in
-// the read-only app resources; a project's working copy belongs in the user's
-// data dir so projects never share files or merge into each other.
+
+
+
 import { cpSync, existsSync, mkdirSync } from "node:fs";
 import { isAbsolute, join, resolve, sep } from "node:path";
 import { execSync } from "node:child_process";
@@ -21,9 +21,9 @@ export function isManagedRepo(repoUrl?: string): boolean {
 }
 
 export async function ensureProjectRepo(projectId: string, repoUrl?: string): Promise<string> {
-  // Remote repositories are cloned by the sandbox provider, not managed here.
+  
   if (repoUrl && (/^https?:\/\//i.test(repoUrl) || repoUrl.startsWith("git@"))) return repoUrl;
-  // An explicit local checkout already on disk stays where it is.
+  
   if (repoUrl && isAbsolute(repoUrl) && existsSync(repoUrl)) return repoUrl;
 
   const id = safeId(projectId);
