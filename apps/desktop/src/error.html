@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline';" />
+    <title>CrewCode</title>
+    <style>
+      body {
+        background: hsl(228, 40%, 11%); color: #e7ebf5; margin: 0; height: 100vh;
+        font-family: system-ui, sans-serif; display: grid; place-items: center; padding: 40px;
+      }
+      .box { max-width: 520px; }
+      h1 { font-size: 22px; margin: 0 0 10px; }
+      p { color: #9aa6c0; line-height: 1.5; }
+      code { background: #1c2438; padding: 2px 6px; border-radius: 6px; }
+      ol { color: #c7cfe2; line-height: 1.8; }
+    </style>
+  </head>
+  <body>
+    <div class="box">
+      <h1>Couldn't start the workspace</h1>
+      <p>The desktop app couldn't reach the local CrewCode server. Most often the database isn't running.</p>
+      <ol>
+        <li>Open Docker Desktop (so Postgres + Redis can start)</li>
+        <li>In this project, run <code>npm run db:up</code></li>
+        <li>Quit and reopen CrewCode</li>
+      </ol>
+    </div>
+  </body>
+</html>

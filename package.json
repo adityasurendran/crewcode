@@ -1,0 +1,35 @@
+{
+  "name": "crewcode",
+  "private": true,
+  "version": "0.1.0",
+  "description": "CrewCode - Everyone builds. CrewCode integrates.",
+  "workspaces": [
+    "apps/api",
+    "apps/web",
+    "packages/*"
+  ],
+  "scripts": {
+    "start": "tsx apps/api/src/index.ts",
+    "build": "npm run build -w crewcode-api && npm run build -w crewcode-web",
+    "dev:api": "npm run dev -w apps/api",
+    "dev:web": "npm run dev -w apps/web",
+    "worker:agent": "npm run worker:agent -w crewcode-api",
+    "worker:merge": "npm run worker:merge -w crewcode-api",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "db:up": "docker compose up -d postgres redis",
+    "db:migrate": "node infra/migrate.mjs",
+    "desktop": "npm --prefix apps/desktop run start",
+    "desktop:smoke": "npm --prefix apps/desktop run smoke",
+    "build:server": "node build/bundle-server.mjs",
+    "build:opencode": "node build/bundle-opencode.mjs",
+    "desktop:install": "npm --prefix apps/desktop install",
+    "desktop:build": "npm run build:server && npm run build -w crewcode-web && npm --prefix apps/desktop run build"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "app-builder-bin": "^4.0.0",
+    "esbuild": "^0.28.2"
+  }
+}

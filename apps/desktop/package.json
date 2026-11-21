@@ -1,0 +1,51 @@
+{
+  "name": "crewcode-desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "CrewCode desktop app (Electron) — boots the local stack and shows the product.",
+  "author": "CrewCode",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "smoke": "electron . --smoke",
+    "build": "electron-builder"
+  },
+  "dependencies": {
+    "embedded-postgres": "18.4.0-beta.17"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.0.0"
+  },
+  "build": {
+    "appId": "sh.crewcode.desktop",
+    "productName": "CrewCode",
+    "electronVersion": "33.4.11",
+    "npmRebuild": false,
+    "buildDependenciesFromSource": false,
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "src/**",
+      "package.json"
+    ],
+    "asar": false,
+    "asarUnpack": [
+      "**/node_modules/embedded-postgres/**",
+      "**/node_modules/@embedded-postgres/**"
+    ],
+    "extraResources": [
+      { "from": "../../build/server", "to": "server" },
+      { "from": "../../apps/web/out", "to": "web" },
+      { "from": "../../opencode-crew", "to": "opencode-crew" },
+      { "from": "../../build/opencode", "to": "opencode" },
+      { "from": "../../build/redis", "to": "redis" },
+      { "from": "../../infra", "to": "infra" },
+      { "from": "../../templates", "to": "templates" }
+    ],
+    "win": { "target": ["nsis"], "signAndEditExecutable": false },
+    "mac": { "target": ["dmg"] },
+    "linux": { "target": ["AppImage"] }
+  }
+}

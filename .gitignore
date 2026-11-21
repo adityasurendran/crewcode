@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.next/
+out/
+*.log
+.docker/
+.env
+.env.local
+.crew/
+arts/
+coverage/
+build/
+release/
+release2/
+apps/desktop/release/
+apps/desktop/release2/

@@ -1,0 +1,7 @@
+{
+  "name": "crewcode-node-express-api",
+  "private": true,
+  "scripts": { "dev": "tsx watch src/index.ts", "build": "tsc -p tsconfig.json", "start": "node dist/index.js" },
+  "dependencies": { "express": "^4.19.2", "pg": "^8.12.0", "zod": "^3.23.8" },
+  "devDependencies": { "@types/express": "^4.17.21", "@types/pg": "^8.11.0", "tsx": "^4.7.0", "typescript": "^5.4.0" }
+}

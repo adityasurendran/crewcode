@@ -1,0 +1,45 @@
+name: CrewCode CI
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+      - run: npx tsc --noEmit -p tsconfig.json
+      - run: npm run build -w crewcode-api
+      - name: Unit tests
+        run: |
+          npx tsx --test \
+            packages/integrator/src/index.test.ts \
+            packages/worker-opencode/src/index.test.ts \
+            packages/graph/src/index.test.ts \
+            apps/api/src/lib/sync.test.ts \
+            apps/api/src/lib/billing.test.ts \
+            apps/api/src/lib/billing2.test.ts \
+            apps/api/src/lib/semantic.test.ts \
+            apps/api/src/routes/stripe-webhook.test.ts \
+            apps/api/src/routes/stripe-webhook2.test.ts \
+            apps/api/src/routes/rollback.test.ts \
+            apps/api/src/lib/cost-optimizer.test.ts \
+            apps/api/src/lib/cost-optimizer2.test.ts \
+            apps/api/src/lib/cost-optimizer3.test.ts \
+            apps/api/src/lib/auth.test.ts \
+            apps/api/src/lib/auth2.test.ts \
+            apps/api/src/lib/clerk.test.ts \
+            apps/api/src/lib/clerk-jwks.test.ts \
+            apps/api/src/routes/github-webhook.test.ts \
+            apps/api/src/lib/semantic-route.test.ts \
+            apps/api/src/lib/share.test.ts \
+            apps/api/src/lib/prereqs.test.ts \
+            apps/api/src/lib/agent-pool.test.ts \
+            apps/api/src/lib/quote.test.ts \
+            apps/api/src/lib/mcp.test.ts \
+            apps/api/src/lib/runlock.test.ts

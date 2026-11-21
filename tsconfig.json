@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "baseUrl": ".",
+    "noEmit": true,
+    "paths": {
+      "@crewcode/worker-opencode": ["packages/worker-opencode/src"],
+      "@crewcode/graph": ["packages/graph/src"],
+      "@crewcode/integrator": ["packages/integrator/src"]
+    }
+  },
+  "include": ["apps/api/src", "packages/*/src"],
+  "exclude": ["node_modules", "apps/web", "templates", "**/dist"]
+}
