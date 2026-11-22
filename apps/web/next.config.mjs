@@ -8,6 +8,7 @@ export default (phase) => {
   const isDev = phase === PHASE_DEVELOPMENT_SERVER;
   return {
     output: isDev ? undefined : "export",
+    trailingSlash: !isDev && process.env.NEXT_PUBLIC_DEMO === "1" ? true : undefined,
     images: { unoptimized: true },
     eslint: { ignoreDuringBuilds: true },
   };

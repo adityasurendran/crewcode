@@ -7,6 +7,9 @@ works in its own Git worktree, and the change waits for your approval before it
 merges. One computer runs everything; friends join from a browser with a 6-digit
 PIN.
 
+**Try the demo:** [crewcode-demo.vercel.app](https://crewcode-demo.vercel.app) —
+an interactive, fully simulated demo. No real code is built there.
+
 ## What it does
 
 - **Build by chatting.** "Add a contact form", "make the header blue", "fix the

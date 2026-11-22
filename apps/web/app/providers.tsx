@@ -1,7 +1,7 @@
 "use client";
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import Lenis from "lenis";
-import { get, getGuestToken, setGuestToken } from "./lib/api";
+import { get, getGuestToken, setGuestToken, IS_DEMO } from "./lib/api";
 import "./components/bits/Counter.css";
 import "./components/bits/Stepper.css";
 
@@ -33,7 +33,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
   const [projects, setProjects] = useState<any[]>([]);
   const [activeProject, setActiveProjectState] = useState("");
-  const [owner, setOwner] = useState("teammate-1");
+  const [owner, setOwner] = useState(IS_DEMO ? "Maya" : "teammate-1");
   const [guest, setGuestState] = useState<any>(() => {
     try {
       if (typeof window === "undefined") return null;

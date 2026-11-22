@@ -2,11 +2,12 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useApp } from "../providers";
-import { get, post, del } from "../lib/api";
+import { get, post, del, IS_DEMO } from "../lib/api";
 import { Button, Skeleton } from "../components/ui";
 import { WmCopyButton } from "../components/wm/WmCopyButton";
 
 function isPublicHost() {
+  if (IS_DEMO) return false;
   try {
     const h = window.location.hostname;
     return h !== "localhost" && h !== "127.0.0.1" && h !== "::1";
@@ -32,6 +33,20 @@ export default function Share() {
   useEffect(() => {
     setPublicHost(isPublicHost());
   }, []);
+
+  useEffect(() => {
+    if (!IS_DEMO) return;
+    try {
+      if (new URLSearchParams(window.location.search).get("friend") !== "1") return;
+      setGuest({
+        guest_token: "demo-guest",
+        project_id: "demo-bloom",
+        project_name: "Bloom Studio",
+        expires_at: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString(),
+      });
+      window.location.replace("/");
+    } catch {}
+  }, [setGuest]);
 
   const load = useCallback(async () => {
     if (!activeProject) return;
@@ -282,6 +297,30 @@ export default function Share() {
                   Leave
                 </Button>
               </div>
+            </>
+          ) : IS_DEMO ? (
+            <>
+              <h2>See the friend view</h2>
+              <p className="share-lead">
+                Open this project as a guest. In the real app, friends join with the 6-digit PIN you send them.
+              </p>
+              <div className="share-actions">
+                <Button
+                  variant="primary"
+                  onClick={() => {
+                    setGuest({
+                      guest_token: "demo-guest",
+                      project_id: "demo-bloom",
+                      project_name: "Bloom Studio",
+                      expires_at: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString(),
+                    });
+                    window.location.assign("/");
+                  }}
+                >
+                  Open friend view
+                </Button>
+              </div>
+              <p className="share-fine">The friend view is scoped to this one sample project. Leave it any time.</p>
             </>
           ) : (
             <>

@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useApp } from "../providers";
-import { get, put, API } from "../lib/api";
+import { get, put, API, IS_DEMO } from "../lib/api";
 
 
 
@@ -27,7 +27,7 @@ export function Notes() {
   }, [load]);
 
   useEffect(() => {
-    if (!activeProject) return;
+    if (!activeProject || IS_DEMO) return;
     let es: EventSource | null = null;
     try {
       es = new EventSource(`${API}/notes/stream?project_id=${activeProject}`);

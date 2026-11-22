@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useApp } from "../providers";
-import { get, post, API, getGuestToken } from "../lib/api";
+import { get, post, API, getGuestToken, IS_DEMO } from "../lib/api";
 import { WmAskBar } from "./wm/WmAskBar";
 import { WmTabs } from "./wm/WmTabs";
 import { Skeleton } from "./ui";
@@ -141,6 +141,7 @@ export function Chat() {
   }
 
   async function speakText(text: string) {
+    if (IS_DEMO) return;
     const clean = plainSpeech(text);
     if (!clean) return;
     try {
@@ -179,7 +180,7 @@ export function Chat() {
 
   
   useEffect(() => {
-    if (!threadId) return;
+    if (!threadId || IS_DEMO) return;
     let es: EventSource | null = null;
     try {
       const guestToken = getGuestToken();
@@ -280,6 +281,7 @@ export function Chat() {
       setMessages((prev) =>
         prev.map((m) => (m?.meta?.approval === taskId ? { ...m, meta: { ...m.meta, approval: null } } : m))
       );
+      if (IS_DEMO) setTimeout(load, 900);
     } catch (e: any) {
       toast(e?.message ?? "Failed", "error");
     }

@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useApp } from "../providers";
-import { get } from "../lib/api";
+import { get, IS_DEMO } from "../lib/api";
 import { Empty, Skeleton } from "../components/ui";
 
 export default function PassportPage() {
@@ -58,14 +58,16 @@ export default function PassportPage() {
           <div className="page-sub">A record of what you actually shipped in this project.</div>
         </div>
         <div className="row" style={{ gap: 8 }}>
-          <a
-            className="btn btn-sm"
-            href={`/api/passport/export?project_id=${activeProject}&owner_id=${encodeURIComponent(who)}`}
-            target="_blank"
-            rel="noreferrer"
-          >
-            Export
-          </a>
+          {!IS_DEMO && (
+            <a
+              className="btn btn-sm"
+              href={`/api/passport/export?project_id=${activeProject}&owner_id=${encodeURIComponent(who)}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Export
+            </a>
+          )}
           <button className="btn btn-sm" onClick={share}>
             Share
           </button>

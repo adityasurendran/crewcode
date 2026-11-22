@@ -29,6 +29,7 @@ function resolveApi(): string {
   return BUILD_API;
 }
 
+export const IS_DEMO = process.env.NEXT_PUBLIC_DEMO === "1";
 export const API = resolveApi();
 export const BUILD_API_BASE = BUILD_API;
 export function isApiOverridden(): boolean {
@@ -69,6 +70,10 @@ export class ApiError extends Error {
 }
 
 export async function api<T = any>(path: string, init: RequestInit = {}): Promise<T> {
+  if (IS_DEMO) {
+    const { demoApi } = await import("./demo");
+    return (await demoApi(path, init)) as T;
+  }
   const token = getGuestToken();
   let res: Response;
   try {

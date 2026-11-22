@@ -3,7 +3,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useApp } from "../providers";
-import { get, del } from "../lib/api";
+import { get, del, IS_DEMO } from "../lib/api";
 
 const NAV_SIMPLE = [
   { href: "/", label: "Chat" },
@@ -30,16 +30,22 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [publicHost, setPublicHost] = useState(false);
 
   useEffect(() => {
+    if (IS_DEMO) return;
     try {
       const h = window.location.hostname;
       setPublicHost(h !== "localhost" && h !== "127.0.0.1" && h !== "::1");
     } catch {}
   }, []);
 
-  
-  
   useEffect(() => {
-    if (!publicHost) return;
+    if (!IS_DEMO) return;
+    const demoPages = ["/", "/crew", "/passport", "/share"];
+    const allowed = demoPages.some((p) => (p === "/" ? pathname === "/" : pathname === p || pathname.startsWith(`${p}/`)));
+    if (!allowed) router.replace("/");
+  }, [pathname, router]);
+
+  useEffect(() => {
+    if (!publicHost || IS_DEMO) return;
     if (!guest && pathname !== "/share") {
       router.replace("/share");
       return;
@@ -55,16 +61,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       .catch(() => setSetupOk(null));
   }, [pathname]);
 
-  if (publicHost) {
-    if (!guest) {
-      return <div className="friend-app friend-app-join">{children}</div>;
-    }
+  if (publicHost && !guest) {
+    return <div className="friend-app friend-app-join">{children}</div>;
+  }
+
+  if ((publicHost || IS_DEMO) && guest) {
     return (
       <div className="friend-app">
         <header className="friend-head">
           <div className="friend-brand">
             <span className="brand-mark">C</span>
             <span>CrewCode</span>
+            {IS_DEMO && <span className="demo-chip">Demo</span>}
           </div>
           <div className="friend-project">{guest.project_name}</div>
           <button
@@ -82,14 +90,23 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     );
   }
 
+  const demoStrip = IS_DEMO ? (
+    <div className="demo-strip" role="note">
+      <span className="demo-strip-tag">Demo</span>
+      <span>Sample project · simulated helper · no real code is built</span>
+    </div>
+  ) : null;
+
   return (
-    <div className="app">
+    <>
+      {demoStrip}
+      <div className={IS_DEMO ? "app demo-app" : "app"}>
       <aside className="sidebar">
         <div className="brand">
           <div className="brand-mark">C</div>
           <div>
             <div className="brand-name">CrewCode</div>
-            <div className="brand-sub">a shared making space</div>
+            <div className="brand-sub">{IS_DEMO ? "interactive demo" : "a shared making space"}</div>
           </div>
         </div>
 
@@ -102,7 +119,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           );
         })}
 
-        {!guest && !publicHost && (
+        {!guest && !publicHost && !IS_DEMO && (
           <details style={{ marginTop: 8 }}>
             <summary className="nav-label" style={{ cursor: "pointer", userSelect: "none", listStyle: "none" }}>
               More
@@ -130,7 +147,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   className="dot"
                   style={{ background: setupOk === false ? "#f59e0b" : setupOk ? "#22c55e" : "#6b7280" }}
                 />
-                {setupOk === false ? "Setup incomplete" : setupOk ? "All systems ready" : "Checking…"}
+                {IS_DEMO ? "Demo data" : setupOk === false ? "Setup incomplete" : setupOk ? "All systems ready" : "Checking…"}
               </div>
             )}
           </div>
@@ -158,7 +175,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </div>
           )}
 
-          {!guest && !publicHost && (
+          {!guest && !publicHost && !IS_DEMO && (
             <button
               className="btn btn-sm"
               style={{ marginLeft: 8 }}
@@ -171,7 +188,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </button>
           )}
 
-          {!guest && !publicHost && activeProject && (
+          {!guest && !publicHost && !IS_DEMO && activeProject && (
             <button
               className="btn btn-sm btn-ghost"
               style={{ marginLeft: 6, color: "var(--danger)" }}
@@ -213,7 +230,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <footer className="site-footer">
           <div className="site-footer-word">CrewCode</div>
           <div className="site-footer-links">
-            {publicHost ? (
+            {publicHost || IS_DEMO ? (
               <>
                 <Link href="/">Chat</Link>
                 <Link href="/crew">Crew</Link>
@@ -232,6 +249,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="site-footer-fine">Everyone builds. CrewCode integrates. © 2026</div>
         </footer>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
